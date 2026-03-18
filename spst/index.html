@@ -12,6 +12,10 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"
+    crossorigin="" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin=""></script>
   <style>
     :root {
       --red: #c0392b;
@@ -26,6 +30,8 @@
       --north: rgba(192, 57, 43, 0.72);
       --south: rgba(212, 160, 23, 0.72);
       --map-bg: #e8dfc8;
+      --texture-dark: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+      --texture-light: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     }
 
     *,
@@ -50,7 +56,7 @@
     header {
       position: relative;
       z-index: 900;
-      background: var(--ink);
+      background: linear-gradient(135deg, #7B4B3A 0%, #5A2D1F 100%);
       border-bottom: 3px solid var(--gold);
       padding: 10px 32px;
       display: flex;
@@ -60,7 +66,7 @@
     }
 
     .header-star {
-      color: var(--gold);
+      color: #ffffff;
       font-size: 28px;
       line-height: 1;
       letter-spacing: 6px;
@@ -76,7 +82,8 @@
       font-family: 'Playfair Display', serif;
       font-size: clamp(16px, 2.2vw, 26px);
       font-weight: 900;
-      color: var(--gold);
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
       letter-spacing: 3px;
       text-transform: uppercase;
       line-height: 1.15;
@@ -85,7 +92,7 @@
     .header-title p {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
-      color: var(--border);
+      color: rgba(255, 255, 255, 0.85);
       letter-spacing: 2px;
       margin-top: 3px;
       text-transform: uppercase;
@@ -94,8 +101,8 @@
     .header-badge {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
-      color: var(--gold);
-      border: 1px solid var(--gold);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.6);
       padding: 4px 10px;
       letter-spacing: 1.5px;
       opacity: 0.7;
@@ -112,30 +119,29 @@
       font-family: 'Arial', sans-serif;
       font-size: 13px;
       font-weight: bold;
-      color: var(--gold-lt);
-      border: 2px solid var(--gold);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.4);
       padding: 8px 16px;
       letter-spacing: 1px;
       text-transform: uppercase;
       text-decoration: none;
       border-radius: 6px;
       transition: all 0.2s;
-      background: rgba(26, 16, 8, 0.4);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
     .nav-btn:hover {
-      background: rgba(212, 160, 23, 0.2);
-      color: #fff;
-      border-color: var(--gold-lt);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
       transform: translateY(-2px);
     }
 
     .nav-btn.active {
-      background: var(--red);
-      color: #fff;
-      border-color: var(--red);
-      box-shadow: 0 4px 10px rgba(192, 57, 43, 0.4);
+      background: #ffffff;
+      color: #6B3E2E;
+      border-color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     /* ── MAIN LAYOUT ── */
@@ -167,7 +173,8 @@
     .sidebar {
       width: 340px;
       flex-shrink: 0;
-      background: var(--paper);
+      background-color: var(--paper);
+      background-image: linear-gradient(to bottom, rgba(200, 184, 154, 0.1), rgba(0, 0, 0, 0.05)), var(--texture-light);
       border-left: 3px solid var(--gold);
       display: flex;
       flex-direction: column;
@@ -177,8 +184,8 @@
     }
 
     .sidebar-header {
-      background: var(--ink);
-      color: var(--gold);
+      background: linear-gradient(135deg, #7B4B3A 0%, #5A2D1F 100%);
+      color: #ffffff;
       padding: 14px 20px;
       font-family: 'Playfair Display', serif;
       font-size: 16px;
@@ -230,7 +237,7 @@
     .timeline-wrap {
       flex-shrink: 0;
       z-index: 200;
-      background: var(--ink);
+      background: linear-gradient(180deg, #6B3E2E 0%, #5A2D1F 100%);
       border-top: 2px solid var(--gold);
       padding: 14px 28px 16px;
     }
@@ -251,7 +258,7 @@
     .tl-label {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
-      color: var(--border);
+      color: rgba(255, 255, 255, 0.65);
       letter-spacing: 1px;
       cursor: pointer;
       transition: color 0.15s;
@@ -264,17 +271,17 @@
       display: block;
       width: 1px;
       height: 6px;
-      background: var(--border);
+      background: rgba(255, 255, 255, 0.5);
       margin: 3px auto 0;
     }
 
     .tl-label.active,
     .tl-label:hover {
-      color: var(--gold-lt);
+      color: #ffffff;
     }
 
     .tl-label.active::after {
-      background: var(--gold-lt);
+      background: #ffffff;
     }
 
     .tl-track {
@@ -824,9 +831,30 @@
       const EVENTS = [
         // 1954
         {
-          year: 1954, date: '21/7/1954', title: 'Hiệp định Giơnevơ', location: 'Quảng Trị – Vĩ tuyến 17', lat: 17.015, lng: 107.1,
+          year: 1954, date: '21/7/1954', title: 'Hiệp định Giơnevơ', location: 'Ký kết: Thụy Sĩ<br>📍 Áp dụng tại: Vĩ tuyến 17 (Quảng Trị)', lat: 17.015, lng: 107.1,
           details: ['Chấm dứt chiến tranh Đông Dương', 'Việt Nam tạm thời chia cắt tại vĩ tuyến 17', 'Hai miền sẽ tổng tuyển cử thống nhất đất nước'],
-          result: 'Mở ra giai đoạn cách mạng mới', type: 'north'
+          result: 'Mở ra giai đoạn cách mạng mới', type: 'north',
+          longContent: `<div style="margin-bottom:15px; padding:10px; background:#f9f9f9; border-left:4px solid #c0392b; border-radius:4px;">
+  <div><strong>📍 Ký kết:</strong> Thụy Sĩ</div>
+  <div><strong>📍 Áp dụng tại:</strong> Vĩ tuyến 17 (Quảng Trị)</div>
+</div>
+<p>Hiệp định Giơnevơ là một văn kiện lịch sử quan trọng, đánh dấu sự kết thúc của cuộc kháng chiến chống thực dân Pháp của nhân dân Việt Nam và các nước Đông Dương. Dưới đây là các thông tin chi tiết:</p>
+<h4>1. Bối cảnh lịch sử</h4>
+<p>Sau chiến thắng vang dội tại Điện Biên Phủ (7/5/1954), vị thế của Việt Nam trên bàn đàm phán được nâng cao rõ rệt. Hội nghị Giơnevơ được triệu tập với sự tham gia của 9 đoàn đại biểu: Anh, Hoa Kỳ, Liên Xô, Pháp, Cộng hòa Nhân dân Trung Hoa, Việt Nam Dân chủ Cộng hòa, Quốc gia Việt Nam, Vương quốc Lào và Vương quốc Campuchia.</p>
+<h4>2. Các nội dung cốt lõi</h4>
+<ul>
+<li><strong>Đình chỉ chiến sự:</strong> Ngừng bắn trên toàn chiến trường Đông Dương, thực hiện tập kết, chuyển quân và chuyển giao khu vực.</li>
+<li><strong>Vĩ tuyến 17:</strong> Việt Nam tạm thời bị chia cắt thành hai vùng tập kết quân sự tại vĩ tuyến 17 (dọc sông Bến Hải, Quảng Trị). Quân đội nhân dân Việt Nam tập kết ở miền Bắc; quân đội Liên hiệp Pháp tập kết ở miền Nam.</li>
+<li><strong>Tổng tuyển cử thống nhất:</strong> Hiệp định quy định sau 2 năm (tức tháng 7/1956), Việt Nam sẽ tổ chức Tổng tuyển cử tự do trong cả nước để thống nhất đất nước dưới sự giám sát của Ủy ban Quốc tế.</li>
+<li><strong>Nguyên tắc độc lập:</strong> Pháp cam kết tôn trọng độc lập, chủ quyền, thống nhất và toàn vẹn lãnh thổ của Việt Nam, Lào, Campuchia.</li>
+</ul>
+<h4>3. Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Chấm dứt ách thống trị của thực dân Pháp:</strong> Buộc Pháp phải rút quân về nước, kết thúc hơn 80 năm xâm lược.</li>
+<li><strong>Giải phóng hoàn toàn miền Bắc:</strong> Tạo tiền đề vững chắc để xây dựng hậu phương lớn cho cuộc đấu tranh thống nhất sau này.</li>
+<li><strong>Mở ra giai đoạn cách mạng mới:</strong> Chuyển từ kháng chiến chống Pháp sang xây dựng Xã hội chủ nghĩa ở miền Bắc và đấu tranh giải phóng miền Nam.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">VTV (Đài Truyền hình Việt Nam): https://vtv.vn/video/phim-tai-lieu-hiep-dinh-geneve-va-khat-vong-hoa-binh-685640.htm</strong><a href="https://vtv.vn/video/phim-tai-lieu-hiep-dinh-geneve-va-khat-vong-hoa-binh-685640.htm" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1954, date: '9/1954', title: 'Hội nghị Bộ Chính trị', location: 'Hà Nội', lat: 21.03, lng: 105.85,
@@ -889,12 +917,33 @@
 <li><strong>Xây dựng chính quyền Ngô Đình Diệm:</strong> Mỹ đưa Ngô Đình Diệm về nước, phế truất Bảo Đại để lập nên chế độ Việt Nam Cộng hòa.</li>
 <li><strong>Mục tiêu:</strong> Biến miền Nam Việt Nam thành một căn cứ quân sự và một "con đê ngăn chặn" chủ nghĩa cộng sản lan xuống phía Nam (Học thuyết Domino).</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baocaovien.vn/tin-tuc/hai-phong-kien-cuong-cau-chuyen-ve-long-tu-hao-va-y-chi-quat-cuong/224738.html#:~:text=ch%C3%AD%20qu%E1%BA%ADt%20c%C6%B0%E1%BB%9Dng-,Ng%C3%A0y%2013%2F5%2F1955%2C%20nh%E1%BB%AFng%20binh%20l%C3%ADnh%20Ph%C3%A1p%20cu%E1%BB%91i,m%E1%BA%BD%20trong%20th%E1%BB%9Di%20k%E1%BB%B3%20m%E1%BB%9Bi.</strong><a href="https://baocaovien.vn/tin-tuc/hai-phong-kien-cuong-cau-chuyen-ve-long-tu-hao-va-y-chi-quat-cuong/224738.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Pháp rút quân hoàn toàn khỏi miền Bắc)</strong><a href="https://baocaovien.vn/tin-tuc/hai-phong-kien-cuong-cau-chuyen-ve-long-tu-hao-va-y-chi-quat-cuong/224738.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1955, date: '1955', title: 'Mỹ can thiệp miền Nam', location: 'Sài Gòn', lat: 10.78, lng: 106.7,
           details: ['Thay Pháp kiểm soát miền Nam', 'Dựng chính quyền Ngô Đình Diệm', 'Tăng cường viện trợ quân sự'],
-          result: 'Bắt đầu thời kỳ Mỹ can thiệp trực tiếp', type: 'south'
+          result: 'Bắt đầu thời kỳ Mỹ can thiệp trực tiếp', type: 'south',
+          longContent: `<p>Sự kiện Mỹ can thiệp trực tiếp vào miền Nam năm 1955 là bước ngoặt biến miền Nam Việt Nam thành tâm điểm của cuộc đối đầu Đông - Tây trong Chiến tranh Lạnh, thay thế chủ nghĩa thực dân cũ của Pháp bằng chủ nghĩa thực dân mới của Mỹ.</p>
+<h4>1. Bối cảnh và Diễn biến (1955)</h4>
+<p>Sau Hiệp định Giơnevơ 1954, Mỹ không ký vào bản tuyên bố chung và nhanh chóng thực hiện kế hoạch hất cẳng Pháp:</p>
+<ul>
+<li><strong>Hất cẳng Pháp:</strong> Mỹ gây áp lực buộc Pháp phải rút quân sớm hơn thời hạn và cắt giảm viện trợ cho các lực lượng thân Pháp.</li>
+<li><strong>Dựng chính quyền Ngô Đình Diệm:</strong> Mỹ đưa Ngô Đình Diệm (một chính khách có xu hướng chống cộng quyết liệt) về nước làm Thủ tướng, sau đó đạo diễn cuộc "Trưng cầu dân ý" (10/1955) để phế truất Bảo Đại, lập nên chính quyền Việt Nam Cộng hòa.</li>
+<li><strong>Xây dựng bộ máy quân sự:</strong> Thành lập Phái đoàn Cố vấn Viện trợ Quân sự (MAAG) để trực tiếp huấn luyện và trang bị cho quân đội Sài Gòn theo tiêu chuẩn Mỹ.</li>
+</ul>
+<h4>2. Các hành động can thiệp chính</h4>
+<ul>
+<li><strong>Viện trợ kinh tế và quân sự:</strong> Mỹ đổ hàng tỷ USD vào miền Nam, biến nền kinh tế Sài Gòn thành một thực thể phụ thuộc hoàn toàn vào viện trợ (Kế hoạch Thương mại hóa viện trợ).</li>
+<li><strong>Vi phạm Hiệp định Giơnevơ:</strong> Từ chối hiệp thương tổng tuyển cử thống nhất đất nước (dự kiến vào năm 1956), biến vĩ tuyến 17 từ ranh giới quân sự tạm thời thành biên giới chính trị chia cắt lâu dài.</li>
+<li><strong>Chính sách "Tố cộng, diệt cộng":</strong> Hỗ trợ Ngô Đình Diệm thực hiện các chiến dịch đàn áp khốc liệt đối với những người kháng chiến cũ và lực lượng yêu nước ở miền Nam.</li>
+</ul>
+<h4>3. Ý nghĩa đối với tiến trình Cách mạng</h4>
+<p>Sự can thiệp của Mỹ đã làm thay đổi tính chất cuộc đấu tranh của nhân dân ta:</p>
+<ul>
+<li><strong>Kẻ thù mới:</strong> Đối tượng tác chiến chuyển từ thực dân Pháp sang đế quốc Mỹ - một thế lực có tiềm lực kinh tế và quân sự mạnh nhất thế giới lúc bấy giờ.</li>
+<li><strong>Hình thái kinh tế - xã hội:</strong> Miền Nam bắt đầu bị áp đặt mô hình kinh tế thị trường phụ thuộc và cấu trúc chính trị thực dân mới, đối lập hoàn toàn với con đường XHCN ở miền Bắc.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Tóm tắt: Cuộc kháng chiến chống Mỹ (1954 - 1975) | Chiến tranh Việt Nam | Tóm tắt lịch sử</strong><a href="https://www.youtube.com/watch?v=mZ99SMWT61w" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1955-1956
@@ -946,7 +995,7 @@
 <li><strong>Ổn định tình hình miền Bắc:</strong> Nhờ sự chỉ đạo quyết liệt trong công tác sửa sai, trật tự xã hội dần được hồi phục, tạo điều kiện để miền Bắc tiếp tục kế hoạch phát triển kinh tế 3 năm (1955-1957).</li>
 <li><strong>Bài học về dân chủ:</strong> Đây là bài học đắt giá về việc tuân thủ các quy luật khách quan và tôn trọng quyền lợi của quần chúng trong quá trình thay đổi hình thái kinh tế - xã hội.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://vietnamnet.vn/tu-chuc-thoi-chuc-va-nhung-lan-sua-sai-thoi-chu-tich-ho-chi-minh-2105400.html</strong><a href="https://vietnamnet.vn/tu-chuc-thoi-chuc-va-nhung-lan-sua-sai-thoi-chu-tich-ho-chi-minh-2105400.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Hội nghị Trung ương 10)</strong><a href="https://vietnamnet.vn/tu-chuc-thoi-chuc-va-nhung-lan-sua-sai-thoi-chu-tich-ho-chi-minh-2105400.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1957
@@ -968,7 +1017,7 @@
 <li><strong>Cân bằng ngân sách:</strong> Nhà nước bắt đầu có tích lũy từ nội bộ nền kinh tế, giảm bớt sự phụ thuộc hoàn toàn vào viện trợ bên ngoài.</li>
 <li><strong>Chuẩn bị cho Kế hoạch 5 năm:</strong> Những thành tựu này tạo ra tiền đề vững chắc về vật chất để miền Bắc bước vào Kế hoạch phát triển kinh tế - xã hội 3 năm (1958-1960) và sau đó là Kế hoạch 5 năm lần thứ nhất.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://hungyen.dcs.vn/phan-8-khoi-phuc-kinh-te-hoan-thanh-cai-cach-ruong-dat-1954-1957-c2332.html#:~:text=%C4%90%E1%BA%BFn%20cu%E1%BB%91i%20n%C4%83m%201957%2C%20h%E1%BA%A7u,trong%20nh%E1%BB%AFng%20n%C4%83m%201958%2D1960.</strong><a href="https://hungyen.dcs.vn/phan-8-khoi-phuc-kinh-te-hoan-thanh-cai-cach-ruong-dat-1954-1957-c2332.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Năm 1957 Hoàn thành cơ bản khôi phục kinh tế)</strong><a href="https://hungyen.dcs.vn/phan-8-khoi-phuc-kinh-te-hoan-thanh-cai-cach-ruong-dat-1954-1957-c2332.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1958-1960
@@ -1002,7 +1051,7 @@
 <ul>
 <li><strong>Giai đoạn này cũng bộc lộ một số hạn chế như:</strong> tính chất nóng vội, gò ép nông dân vào HTX khi trình độ quản lý còn thấp, dẫn đến hiện tượng "dong công phóng điểm" (làm việc hời hợt) và hiệu quả sản xuất của một số HTX chưa cao.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://thinhvuongvietnam.com/Content/phong-trao-hop-tac-hoa-nong-nghiep-o-mien-bac-1958-1960-301510</strong><a href="https://thinhvuongvietnam.com/Content/phong-trao-hop-tac-hoa-nong-nghiep-o-mien-bac-1958-1960-301510" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Cải tạo xã hội chủ nghĩa)</strong><a href="https://thinhvuongvietnam.com/Content/phong-trao-hop-tac-hoa-nong-nghiep-o-mien-bac-1958-1960-301510" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1959
@@ -1010,45 +1059,51 @@
           year: 1959, date: '1959', title: 'Nghị quyết 15', location: 'Hà Nội', lat: 21.03, lng: 105.85,
           details: ['Cho phép sử dụng bạo lực cách mạng', 'Kết hợp đấu tranh chính trị và vũ trang', 'Chuyển hướng cách mạng miền Nam'],
           result: 'Bước ngoặt trong cách mạng miền Nam', type: 'north',
-          longContent: `<p>Năm 1959 được coi là năm "bản lề" xoay chuyển cục diện của cách mạng miền Nam, từ thế giữ gìn lực lượng sang thế tiến công mạnh mẽ.</p>
-<h4>1. Nghị quyết 15 (tháng 1/1954 - ban hành chính thức năm 1959)</h4>
-<p>Sau nhiều năm đấu tranh chính trị đơn thuần bị chính quyền Ngô Đình Diệm đàn áp đẫm máu (đỉnh điểm là Luật 10/59), Hội nghị Trung ương lần thứ 15 đã ra quyết định lịch sử:</p>
+          longContent: `<p>Nghị quyết Trung ương lần thứ 15 (tháng 1/1959) được xem là "ngọn đuốc soi đường", tạo ra bước chuyển mình vĩ đại nhất của cách mạng miền Nam sau 5 năm kiên trì đấu tranh chính trị trong cảnh bị đàn áp đẫm máu.</p>
+<h4>1. Bối cảnh ra đời</h4>
+<p>Đến năm 1959, chính quyền Ngô Đình Diệm thực hiện chính sách "tố cộng, diệt cộng" cực đoan, ban hành Luật 10/59 "đặt cộng sản ra ngoài vòng pháp luật", dùng máy chém đi khắp miền Nam. Cách mạng đứng trước yêu cầu bách bộ là phải dùng bạo lực để tự vệ và giải phóng.</p>
+<h4>2. Nội dung cốt lõi của Nghị quyết</h4>
 <ul>
-<li><strong>Chủ trương:</strong> Con đường phát triển cơ bản của cách mạng Việt Nam ở miền Nam là khởi nghĩa giành chính quyền về tay nhân dân.</li>
-<li><strong>Phương pháp:</strong> Sử dụng bạo lực cách mạng để đánh đổ ách thống trị của Mỹ - Diệm.</li>
-<li><strong>Hình thức:</strong> Kết hợp đấu tranh chính trị với đấu tranh vũ trang, lấy đấu tranh chính trị làm chủ yếu nhưng có lực lượng vũ trang hỗ trợ.</li>
-<li><strong>Ý nghĩa:</strong> Giải tỏa "cơn khát" của đồng bào miền Nam, soi sáng con đường giải phóng và dẫn đến cao trào Đồng khởi (1960).</li>
+<li><strong>Con đường phát triển:</strong> Khẳng định con đường cơ bản của cách mạng miền Nam là khởi nghĩa giành chính quyền về tay nhân dân.</li>
+<li><strong>Phương pháp cách mạng:</strong> Sử dụng bạo lực cách mạng để đánh đổ ách thống trị của đế quốc và phong kiến.</li>
+<li><strong>Hình thức đấu tranh:</strong> Kết hợp đấu tranh chính trị với đấu tranh vũ trang, phù hợp với tình hình cụ thể để đưa cách mạng tiến lên.</li>
 </ul>
-<h4>2. Sự hình thành Đường Hồ Chí Minh (19/5/1959)</h4>
-<p>Để thực hiện Nghị quyết 15, việc chi viện từ hậu phương miền Bắc cho tiền tuyến miền Nam trở thành yêu cầu sống còn:</p>
+<h4>3. Ý nghĩa và Hệ quả (Result)</h4>
 <ul>
-<li><strong>Đoàn 559:</strong> Được thành lập đúng ngày sinh nhật Bác (19/5) để mở đường trường sơn trên bộ.</li>
-<li><strong>Đoàn 759:</strong> Tiền thân của đường Hồ Chí Minh trên biển (tàu không số).</li>
-<li><strong>Vai trò:</strong> Đây không chỉ là một tuyến giao thông mà là một trận đồ bát quái xuyên rừng rậm, nơi vận chuyển vũ khí, lương thực và cán bộ, biến miền Nam thành chiến trường chia cắt kẻ thù.</li>
+<li><strong>Chấm dứt thời kỳ tổn thất:</strong> Chấm dứt giai đoạn đơn thuần đấu tranh chính trị, giải tỏa sự kìm nén của quần chúng.</li>
+<li><strong>Ngòi nổ cho "Đồng khởi":</strong> Nghị quyết như luồng sinh khí mới, dẫn đến cao trào nổi dậy đồng loạt vào năm 1960, tiêu biểu là ở Bến Tre.</li>
+<li><strong>Xác lập thế chủ động:</strong> Chuyển cách mạng từ thế giữ gìn lực lượng sang thế tiến công, làm lung lay tận gốc chế độ thực dân mới.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Nghị quyết 15 soi sáng con đường giải phóng miền Nam</strong><a href="https://youtu.be/tBPXwyoKt9U?si=EvUBwFDo73efe9bE" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Nghị quyết Trung ương lần thứ 15)</strong><a href="https://sknc.qdnd.vn/theo-dong-su-kien/buoc-ngoat-lich-su-cua-cach-mang-mien-nam-503564" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Nghị quyết 15: Bước ngoặt chiến lược của cuộc kháng chiến chống Mỹ cứu nước</strong><a href="https://www.youtube.com/watch?v=2wEkunqevzY" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1959, date: '1959', title: 'Mở đường Hồ Chí Minh', location: 'Trường Sơn', lat: 16.5, lng: 106.5,
           details: ['Xây dựng tuyến đường chi viện chiến lược', 'Nối liền Bắc – Nam qua dãy Trường Sơn'],
           result: 'Tuyến chi viện chiến lược Bắc – Nam', type: 'north',
-          longContent: `<p>Năm 1959 được coi là năm "bản lề" xoay chuyển cục diện của cách mạng miền Nam, từ thế giữ gìn lực lượng sang thế tiến công mạnh mẽ.</p>
-<h4>1. Nghị quyết 15 (tháng 1/1954 - ban hành chính thức năm 1959)</h4>
-<p>Sau nhiều năm đấu tranh chính trị đơn thuần bị chính quyền Ngô Đình Diệm đàn áp đẫm máu (đỉnh điểm là Luật 10/59), Hội nghị Trung ương lần thứ 15 đã ra quyết định lịch sử:</p>
+          longContent: `<p>Việc mở đường Hồ Chí Minh (Đoàn 559) vào năm 1959 là một quyết định mang tính lịch sử, tạo ra "huyết mạch" quyết định thắng lợi của cuộc kháng chiến chống Mỹ, cứu nước.</p>
+<h4>1. Bối cảnh và Sự thành lập</h4>
 <ul>
-<li><strong>Chủ trương:</strong> Con đường phát triển cơ bản của cách mạng Việt Nam ở miền Nam là khởi nghĩa giành chính quyền về tay nhân dân.</li>
-<li><strong>Phương pháp:</strong> Sử dụng bạo lực cách mạng để đánh đổ ách thống trị của Mỹ - Diệm.</li>
-<li><strong>Hình thức:</strong> Kết hợp đấu tranh chính trị với đấu tranh vũ trang, lấy đấu tranh chính trị làm chủ yếu nhưng có lực lượng vũ trang hỗ trợ.</li>
-<li><strong>Ý nghĩa:</strong> Giải tỏa "cơn khát" của đồng bào miền Nam, soi sáng con đường giải phóng và dẫn đến cao trào Đồng khởi (1960).</li>
+<li><strong>Ngày thành lập:</strong> 19/5/1959 (trùng với ngày sinh Nhật Bác Hồ).</li>
+<li><strong>Đơn vị thực hiện:</strong> "Đoàn quân sự đặc biệt" – Đoàn 559, do Thượng tá Võ Bẩm làm Đoàn trưởng.</li>
+<li><strong>Nhiệm vụ:</strong> Xây dựng tuyến đường vận chuyển chiến lược để chi viện sức người, sức của từ hậu phương miền Bắc cho tiền tuyến miền Nam sau khi có Nghị quyết 15.</li>
 </ul>
-<h4>2. Sự hình thành Đường Hồ Chí Minh (19/5/1959)</h4>
-<p>Để thực hiện Nghị quyết 15, việc chi viện từ hậu phương miền Bắc cho tiền tuyến miền Nam trở thành yêu cầu sống còn:</p>
+<h4>2. Đặc điểm của "Con đường huyền thoại"</h4>
 <ul>
-<li><strong>Đoàn 559:</strong> Được thành lập đúng ngày sinh nhật Bác (19/5) để mở đường trường sơn trên bộ.</li>
-<li><strong>Đoàn 759:</strong> Tiền thân của đường Hồ Chí Minh trên biển (tàu không số).</li>
-<li><strong>Vai trò:</strong> Đây không chỉ là một tuyến giao thông mà là một trận đồ bát quái xuyên rừng rậm, nơi vận chuyển vũ khí, lương thực và cán bộ, biến miền Nam thành chiến trường chia cắt kẻ thù.</li>
+<li><strong>Địa hình:</strong> Chạy dọc theo dãy Trường Sơn hùng vĩ, băng qua những địa hình hiểm trở nhất của cả Việt Nam, Lào và Campuchia.</li>
+<li><strong>Phương thức vận chuyển:</strong> Giai đoạn đầu chủ yếu là "đi không dấu, nấu không khói, nói không tiếng", vận chuyển thô sơ bằng gùi thồ, xe đạp thồ trước khi phát triển thành mạng lưới đường bộ cho xe cơ giới.</li>
+<li><strong>Khẩu hiệu:</strong> "Xẻ dọc Trường Sơn đi cứu nước / Mà lòng phơi phới dậy tương lai".</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Nghị quyết 15 soi sáng con đường giải phóng miền Nam</strong><a href="https://youtu.be/tBPXwyoKt9U?si=EvUBwFDo73efe9bE" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<h4>3. Kết quả và Ý nghĩa chiến lược (Result)</h4>
+<ul>
+<li><strong>Phá thế chia cắt:</strong> Nối liền hậu phương lớn miền Bắc với tiền tuyến lớn miền Nam, xóa tan âm mưu chia cắt đất nước của Mỹ - Diệm.</li>
+<li><strong>Biểu tượng ý chí:</strong> Trở thành biểu tượng của tinh thần "Tất cả vì miền Nam ruột thịt", nơi hội tụ sức mạnh của khối đại đoàn kết dân tộc và tình đoàn kết chiến đấu ba nước Đông Dương.</li>
+<li><strong>Hậu cần chiến lược:</strong> Là cơ sở để sau này hình thành các binh chủng hợp thành, các binh đoàn chủ lực tiến vào giải phóng miền Nam năm 1975.</li>
+</ul>
+<h4>4. Góc nhìn Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận 30 trang của bạn, đường Hồ Chí Minh không chỉ là một tuyến đường quân sự mà còn là hạ tầng cơ sở chiến lược giúp dịch chuyển nguồn lực từ hình thái kinh tế XHCN (miền Bắc) sang hỗ trợ cuộc đấu tranh giải phóng dân tộc (miền Nam). Nó là minh chứng cho việc tổ chức không gian lãnh thổ để phục vụ mục tiêu chính trị cao nhất.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">TRƯỜNG SƠN HUYỀN THOẠI MANG TÊN MỘT CON ĐƯỜNG.</strong><a href="https://www.youtube.com/watch?v=AKgm3wyMc5E" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Kỳ tích đường mòn Hồ Chí Minh qua góc nhìn của người Mỹ | VTV4</strong><a href="https://www.youtube.com/watch?v=imtRm94Nbz4" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1960
@@ -1071,7 +1126,7 @@
 </ul>
 <h4>3. Tầm quan trọng đối với lý luận Hình thái kinh tế - xã hội</h4>
 <p>Trong bài luận của bạn, sự kiện này minh chứng cho quy luật: Khi mâu thuẫn giữa nhân dân và chính quyền phản động lên đến đỉnh điểm, sự nổi dậy của quần chúng là động lực trực tiếp thay đổi thực tại chính trị.</p>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://nhandan.vn/phong-trao-dong-khoi-1960-buoc-ngoat-cua-cach-mang-mien-nam-post380528.html</strong><a href="https://nhandan.vn/phong-trao-dong-khoi-1960-buoc-ngoat-cua-cach-mang-mien-nam-post380528.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Phong trào Đồng Khởi (Bến Tre))</strong><a href="https://nhandan.vn/phong-trao-dong-khoi-1960-buoc-ngoat-cua-cach-mang-mien-nam-post380528.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
 <div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Phong trào Đồng Khởi - Bước ngoặt của cách mạng miền Nam | Phim tài liệu kháng chiến chống Mỹ</strong><a href="https://www.youtube.com/watch?v=qlUTb3Ain5A" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
@@ -1094,7 +1149,7 @@
 </ul>
 <h4>3. Tầm quan trọng đối với lý luận Cách mạng</h4>
 <p>Trong bài luận của bạn, sự ra đời của Mặt trận là minh chứng cho việc tổ chức hóa lực lượng quần chúng. Khi một hình thái kinh tế - xã hội cũ (thực dân mới) bị phản kháng, việc hình thành một "Nhà nước trong lòng địch" (thông qua Mặt trận) là bước chuẩn bị cho sự thay thế hoàn toàn về mặt chính trị.</p>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-20-12-1960-mat-tran-dan-toc-giai-phong-mien-nam-viet-nam-chinh-thuc-duoc-thanh-lap-680654</strong><a href="https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-20-12-1960-mat-tran-dan-toc-giai-phong-mien-nam-viet-nam-chinh-thuc-duoc-thanh-lap-680654" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Báo chí và Tư liệu: Thành lập Mặt trận Dân tộc Giải phóng miền Nam</strong><a href="https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-20-12-1960-mat-tran-dan-toc-giai-phong-mien-nam-viet-nam-chinh-thuc-duoc-thanh-lap-680654" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1960, date: '9/1960', title: 'Đại hội Đảng lần thứ III', location: 'Hà Nội', lat: 21.05, lng: 105.87,
@@ -1119,7 +1174,7 @@
 <li><strong>Nguồn sức mạnh:</strong> Tạo ra sự thống nhất ý chí và hành động trong toàn Đảng, toàn quân và toàn dân, huy động tối đa sức mạnh của hậu phương miền Bắc cho cuộc kháng chiến ở miền Nam.</li>
 <li><strong>Tầm nhìn dài hạn:</strong> Đặt nền móng cho việc xây dựng cơ cấu kinh tế công - nông nghiệp ở miền Bắc, tạo tiềm lực vật chất cho cuộc đối đầu dài hơi với đế quốc Mỹ.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/chinh-tri/cac-van-de/cac-ky-dai-hoi-cua-dang-va-nhung-dau-an-lich-su-dai-hoi-lan-thu-iii-xay-dung-chu-nghia-xa-hoi-o-mien-bac-dau-tranh-thong-nhat-nuoc-nha-813648</strong><a href="https://www.qdnd.vn/chinh-tri/cac-van-de/cac-ky-dai-hoi-cua-dang-va-nhung-dau-an-lich-su-dai-hoi-lan-thu-iii-xay-dung-chu-nghia-xa-hoi-o-mien-bac-dau-tranh-thong-nhat-nuoc-nha-813648" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Đại hội Đảng lần III)</strong><a href="https://www.qdnd.vn/chinh-tri/cac-van-de/cac-ky-dai-hoi-cua-dang-va-nhung-dau-an-lich-su-dai-hoi-lan-thu-iii-xay-dung-chu-nghia-xa-hoi-o-mien-bac-dau-tranh-thong-nhat-nuoc-nha-813648" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1961
@@ -1149,17 +1204,64 @@
 <li><strong>Thành tựu tiêu biểu:</strong> Nhiều "con chim đầu đàn" của nền công nghiệp ra đời như: Khu gang thép Thái Nguyên, Thủy điện Thác Bà, Dệt 8-3...</li>
 <li><strong>Vai trò:</strong> Xây dựng miền Bắc thành hậu phương lớn, sẵn sàng chi viện sức người, sức của cho tiền tuyến miền Nam "đánh cho Mỹ cút, đánh cho Ngụy nhào".</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://chinhphu.vn/giai-doan-1955-1975-xay-dung-cnxh-va-dau-tranh-thong-nhat-dat-nuoc/2-danh-thang-chien-luoc-chien-tranh-dac-biet-cua-my-1961-1965-10001594</strong><a href="https://chinhphu.vn/giai-doan-1955-1975-xay-dung-cnxh-va-dau-tranh-thong-nhat-dat-nuoc/2-danh-thang-chien-luoc-chien-tranh-dac-biet-cua-my-1961-1965-10001594" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Báo chí và Tư liệu: Chiến lược "Chiến tranh đặc biệt"</strong><a href="https://chinhphu.vn/giai-doan-1955-1975-xay-dung-cnxh-va-dau-tranh-thong-nhat-dat-nuoc/2-danh-thang-chien-luoc-chien-tranh-dac-biet-cua-my-1961-1965-10001594" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Chiến đấu chống chiến lược “Chiến tranh Đặc Biệt” của Mỹ | Tóm tắt lịch sử Việt Nam</strong><a href="https://www.youtube.com/watch?v=oV-pcyDOuE0" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1961, date: '1961', title: 'Kế hoạch 5 năm lần I (1961–1965)', location: 'Hà Nội', lat: 21.02, lng: 105.82,
           details: ['Đẩy mạnh xây dựng cơ sở vật chất CNXH', 'Phát triển công nghiệp, nông nghiệp'],
-          result: 'Đẩy mạnh xây dựng CNXH ở miền Bắc', type: 'north'
+          result: 'Đẩy mạnh xây dựng CNXH ở miền Bắc', type: 'north',
+          longContent: `<p>Kế hoạch Nhà nước 5 năm lần thứ nhất (1961–1965) là một dấu mốc then chốt trong lịch sử kinh tế miền Bắc, đánh dấu bước chuyển từ giai đoạn khôi phục và cải tạo sang giai đoạn xây dựng cơ sở vật chất - kỹ thuật cho Chủ nghĩa Xã hội (CNXH).</p>
+<h4>1. Mục tiêu chiến lược</h4>
+<p>Được thông qua tại Đại hội Đảng lần thứ III (1960), kế hoạch này nhằm:</p>
+<p>Ưu tiên phát triển công nghiệp nặng một cách hợp lý để làm nền tảng cho nền kinh tế quốc dân.</p>
+<p>Kết hợp chặt chẽ với phát triển nông nghiệp và công nghiệp nhẹ, giải quyết vấn đề lương thực và hàng tiêu dùng.</p>
+<p>Biến miền Bắc thành hậu phương vững chắc, đủ tiềm lực chi viện cho cuộc đấu tranh thống nhất đất nước ở miền Nam.</p>
+<h4>2. Những thành tựu tiêu biểu (1961–1965)</h4>
+<p>Đây là thời kỳ miền Bắc bùng nổ các phong trào thi đua như "Gió Đại Phong" (nông nghiệp), "Sóng Duyên Hải" (công nghiệp) và "Cờ Ba Nhất" (quân đội).</p>
+<ul>
+<li><strong>Về Công nghiệp:</strong> * Xây dựng và đưa vào hoạt động những "đứa con đầu lòng" của nền công nghiệp nặng: Khu gang thép Thái Nguyên, Nhà máy Nhiệt điện Uông Bí, Nhà máy Super phốt phát Lâm Thao.</li>
+</ul>
+<p>Phát triển mạnh công nghiệp nhẹ với Nhà máy Dệt 8-3, Khu công nghiệp Cao - Xà - Lá (Cao su - Xà phòng - Thuốc lá) tại Hà Nội.</p>
+<ul>
+<li><strong>Về Nông nghiệp:</strong></li>
+</ul>
+<p>Đẩy mạnh phong trào hợp tác hóa, xây dựng các công trình thủy lợi quy mô lớn như hệ thống thủy lợi Bắc Hưng Hải.</p>
+<p>Áp dụng tiến bộ kỹ thuật, đưa miền Bắc dần tiến tới mục tiêu "5 tấn thóc trên một héc-ta".</p>
+<ul>
+<li><strong>Về Văn hóa - Xã hội:</strong></li>
+</ul>
+<p>Hoàn thành xóa nạn mù chữ, hệ thống giáo dục và y tế được mở rộng đến tận cấp xã, thôn.</p>
+<h4>3. Ý nghĩa đối với lý luận Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận 30 trang của bạn, giai đoạn này là minh chứng điển hình cho việc chủ động xây dựng lực lượng sản xuất mới. Việc tập trung vào công nghiệp nặng không chỉ là mục tiêu kinh tế mà còn là cách để xác lập địa vị thống trị của phương thức sản xuất XHCN, tạo ra cơ sở vật chất để bảo vệ thành quả cách mạng trước cuộc chiến tranh phá hoại của Mỹ bắt đầu từ năm 1964.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (1965))</strong><a href="https://www.mpi.gov.vn/portal/Pages/2015/2-Ke-hoach-5-nam-lan-thu-nhat-1961-1965-4qviti.aspx" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">P111 - Kế hoạch 5 năm lần thứ nhất phát triển kinh tế quốc dân (1961-1965)</strong><a href="https://www.youtube.com/watch?v=K-sFZKAsiB8" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1961, date: '1961', title: 'Thành lập Trung ương Cục & Quân GPMNVN', location: 'Tây Nguyên', lat: 13.8, lng: 108.1,
           details: ['Thành lập Trung ương Cục miền Nam', 'Thành lập Quân Giải phóng miền Nam Việt Nam'],
-          result: 'Tăng cường lãnh đạo và lực lượng vũ trang miền Nam', type: 'south'
+          result: 'Tăng cường lãnh đạo và lực lượng vũ trang miền Nam', type: 'south',
+          longContent: `<p>Sự kiện kiện toàn bộ máy lãnh đạo và thống nhất lực lượng vũ trang tại miền Nam năm 1961 là bước chuẩn bị chiến lược cực kỳ quan trọng, giúp cách mạng miền Nam có đủ tầm vóc để đương đầu với chiến lược "Chiến tranh đặc biệt" của Mỹ.</p>
+<h4>1. Thành lập Trung ương Cục miền Nam (10/1961)</h4>
+<p>Sau Nghị quyết 15 và phong trào Đồng Khởi, nhu cầu về một cơ quan lãnh đạo trực tiếp, sát sao tại chiến trường trở nên cấp thiết.</p>
+<ul>
+<li><strong>Hoàn cảnh:</strong> Hội nghị lần thứ 3 Ban Chấp hành Trung ương Đảng (Khóa III) quyết định thành lập Trung ương Cục miền Nam để thay thế cho Xứ ủy Nam Bộ.</li>
+<li><strong>Địa điểm:</strong> Căn cứ ban đầu được đặt tại Mã Đà (Chiến khu Đ), sau đó chuyển về vùng căn cứ Bắc Tây Ninh.</li>
+<li><strong>Nhiệm vụ:</strong> Là một bộ phận của Trung ương Đảng đặt tại miền Nam, có nhiệm vụ chỉ đạo toàn bộ công tác Đảng, công tác chính trị, quân sự và dân vận trên chiến trường miền Nam.</li>
+</ul>
+<h4>2. Thành lập Quân Giải phóng miền Nam Việt Nam (15/2/1961)</h4>
+<p>Đây là sự kiện đánh dấu sự trưởng thành về chất của lực lượng vũ trang cách mạng.</p>
+<ul>
+<li><strong>Hợp nhất:</strong> Thống nhất các lực lượng vũ trang tại chỗ (các đơn vị tự vệ, du kích) và các đơn vị bộ đội tập trung thành một quân đội chính quy duy nhất mang tên Quân Giải phóng miền Nam Việt Nam (vốn là bộ phận của Quân đội Nhân dân Việt Nam chiến đấu tại miền Nam).</li>
+<li><strong>Lễ thành lập:</strong> Diễn ra tại chiến khu Đ (miền Đông Nam Bộ).</li>
+</ul>
+<h4>3. Kết quả và Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Tăng cường lãnh đạo:</strong> Sự ra đời của Trung ương Cục giúp các quyết sách từ Hà Nội được truyền đạt và vận dụng linh hoạt, kịp thời vào thực tiễn chiến trường miền Nam.</li>
+<li><strong>Sức mạnh tổng hợp:</strong> Việc thống nhất lực lượng vũ trang giúp quân ta có thể tổ chức các trận đánh quy mô lớn, hiệp đồng quân binh chủng, thay vì chỉ dừng lại ở các cuộc tập kích nhỏ lẻ.</li>
+<li><strong>Đối trọng chiến lược:</strong> Tạo ra một thực thể quân sự - chính trị đủ mạnh để đối trọng với bộ máy cố vấn Mỹ và quân đội Sài Gòn đang tăng cường mở rộng lúc bấy giờ.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Thành lập Trung ương Cục & Quân GPMNVN)</strong><a href="https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-23-1-1961-ngay-thanh-lap-trung-uong-cuc-mien-nam-683290" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1962
@@ -1184,7 +1286,7 @@
 </ul>
 <h4>3. Tầm quan trọng đối với lý luận Hình thái kinh tế - xã hội</h4>
 <p>Trong bài luận 30 trang của bạn, sự kiện này là minh chứng cho việc sử dụng bạo lực phi nghĩa để cưỡng chế thay đổi cấu trúc xã hội (nông thôn). Việc dồn dân vào ấp là nỗ lực tuyệt vọng nhằm phá vỡ hình thái kinh tế - chính trị truyền thống của làng quê Việt Nam để phục vụ mục tiêu xâm lược.</p>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baotintuc.vn/van-hoa/trien-lam-anh-60-nam-tham-hoa-da-cam-viet-namnoi-dau-con-donhan-chung-lich-su-20210727164229148.htm</strong><a href="https://baotintuc.vn/van-hoa/trien-lam-anh-60-nam-tham-hoa-da-cam-viet-namnoi-dau-con-donhan-chung-lich-su-20210727164229148.htm" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Mỹ đẩy mạnh Ấp chiến lược)</strong><a href="https://baotintuc.vn/van-hoa/trien-lam-anh-60-nam-tham-hoa-da-cam-viet-namnoi-dau-con-donhan-chung-lich-su-20210727164229148.htm" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
 <div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Đập tan kế hoạch ấp chiến lược</strong><a href="https://www.youtube.com/watch?v=NmJY-Xgwkeo" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
@@ -1212,12 +1314,33 @@
 <ul>
 <li><strong>Cơ hội cho cách mạng:</strong> Lực lượng cách mạng tận dụng thời cơ chính trị này để đẩy mạnh đấu tranh phá ấp, mở rộng vùng giải phóng.</li>
 </ul>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/quoc-phong-an-ninh/nghe-thuat-quan-su-vn/chien-thang-ap-bac-buoc-truong-thanh-cua-quan-giai-phong-mien-nam-viet-nam-715093</strong><a href="https://www.qdnd.vn/quoc-phong-an-ninh/nghe-thuat-quan-su-vn/chien-thang-ap-bac-buoc-truong-thanh-cua-quan-giai-phong-mien-nam-viet-nam-715093" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Chiến thắng Ấp Bắc)</strong><a href="https://www.qdnd.vn/quoc-phong-an-ninh/nghe-thuat-quan-su-vn/chien-thang-ap-bac-buoc-truong-thanh-cua-quan-giai-phong-mien-nam-viet-nam-715093" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1963, date: '1/11/1963', title: 'Đảo chính lật đổ Ngô Đình Diệm', location: 'Sài Gòn', lat: 10.78, lng: 106.69,
           details: ['Nội bộ chính quyền Sài Gòn mâu thuẫn sâu sắc', 'Nhóm tướng lĩnh đảo chính, Ngô Đình Diệm bị giết'],
-          result: 'Chính quyền Sài Gòn khủng hoảng nghiêm trọng', type: 'south'
+          result: 'Chính quyền Sài Gòn khủng hoảng nghiêm trọng', type: 'south',
+          longContent: `<p>Sự kiện cuộc đảo chính ngày 1/11/1963 lật đổ chế độ Ngô Đình Diệm là một "cơn địa chấn" chính trị, đánh dấu sự thất bại của mô hình chính quyền độc tài gia đình trị và đẩy chiến lược "Chiến tranh đặc biệt" của Mỹ vào ngõ cụt.</p>
+<h4>1. Nguyên nhân và Bối cảnh</h4>
+<ul>
+<li><strong>Khủng hoảng chính trị:</strong> Chính quyền Ngô Đình Diệm mất lòng dân trầm trọng do chính sách "tố cộng, diệt cộng", dồn dân vào Ấp chiến lược và đặc biệt là cuộc đàn áp Phật giáo đẫm máu năm 1963.</li>
+<li><strong>Mâu thuẫn với Mỹ:</strong> Washington nhận thấy anh em Diệm - Nhu không còn khả năng kiểm soát tình hình và bắt đầu có những biểu hiện không tuân thủ hoàn toàn mệnh lệnh của Mỹ.</li>
+<li><strong>Mâu thuẫn nội bộ:</strong> Sự bất mãn của các tướng lĩnh quân đội Sài Gòn đối với sự độc đoán của gia đình họ Ngô.</li>
+</ul>
+<h4>2. Diễn biến chính (1/11/1963)</h4>
+<ul>
+<li><strong>Lực lượng đảo chính:</strong> Do các tướng lĩnh cấp cao như Dương Văn Minh, Trần Văn Đôn, Tôn Thất Đính cầm đầu, với sự ủng hộ và "bật đèn xanh" từ đại sứ Mỹ Henry Cabot Lodge.</li>
+<li><strong>Hành động:</strong> Quân đảo chính tấn công Dinh Gia Long. Anh em Ngô Đình Diệm và Ngô Đình Nhu chạy trốn đến nhà thờ Cha Tam (Chợ Lớn) nhưng sau đó bị bắt và bị ám sát trên đường áp giải về Bộ Tổng tham mưu.</li>
+</ul>
+<h4>3. Kết quả và Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Khủng hoảng thượng tầng:</strong> Chế độ Việt Nam Cộng hòa rơi vào tình trạng "hỗn quân hỗn quan". Trong vòng 1,5 năm sau đó, đã xảy ra liên tiếp 10 cuộc đảo chính và chỉnh lý, khiến bộ máy cai trị từ trung ương đến địa phương bị tê liệt.</li>
+<li><strong>Hệ thống Ấp chiến lược tan rã:</strong> Lợi dụng sự hỗn loạn của địch, quân và dân miền Nam đã đẩy mạnh nổi dậy phá tan phần lớn các Ấp chiến lược, mở rộng vùng giải phóng.</li>
+<li><strong>Thất bại của một học thuyết:</strong> Sự sụp đổ của Diệm chứng minh Mỹ không thể duy trì một chính quyền tay sai độc lập mà buộc phải tính đến chuyện trực tiếp can thiệp quân sự (dẫn đến Chiến tranh cục bộ sau này).</li>
+</ul>
+<h4>4. Góc nhìn Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận của bạn, sự kiện này minh chứng cho sự khủng hoảng của Thượng tầng kiến trúc. Khi cấu trúc chính trị (chính quyền Diệm) không còn đủ sức kìm nén sự phát triển của phong trào cách mạng (Lực lượng sản xuất mới), nó tất yếu bị phá vỡ từ bên trong dưới tác động của các yếu tố ngoại lực (Mỹ) và nội lực (quần chúng).</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">VỤ ĐẢO CHÍNH NĂM 1963, LẬT ĐỔ CHẾ ĐỘ NGÔ ĐÌNH DIỆM - NHỮNG THẾ LỰC PHÍA SAU VỤ ĐẢO CHÍNH.</strong><a href="https://www.youtube.com/watch?v=j7wXFXuyXwg" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1964
@@ -1242,13 +1365,34 @@
 </ul>
 <h4>3. Tầm quan trọng đối với Hình thái kinh tế - xã hội</h4>
 <p>Trong bài luận của bạn, giai đoạn này minh chứng cho quy luật: Khi một lực lượng chính trị (đế quốc Mỹ) không còn kiểm soát được tình hình thông qua các cấu trúc gián tiếp (chính quyền tay sai), họ buộc phải sử dụng bạo lực trực tiếp (quân đội viễn chinh) để duy trì hình thái thống trị. Điều này làm thay đổi tính chất cuộc chiến từ "đặc biệt" sang "cục bộ", kéo theo sự thay đổi về phương thức sản xuất và sinh hoạt của cả hai miền để thích ứng với điều kiện chiến tranh phá hoại.</p>
-<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baodongnai.com.vn/chinh-tri/202412/ky-niem-60-nam-chien-thang-binh-gia-2-12-moc-son-choi-loi-trong-lich-su-khang-chien-chong-de-quoc-my-a3751aa/</strong><a href="https://baodongnai.com.vn/chinh-tri/202412/ky-niem-60-nam-chien-thang-binh-gia-2-12-moc-son-choi-loi-trong-lich-su-khang-chien-chong-de-quoc-my-a3751aa/" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Chiến thắng Bình Giã)</strong><a href="https://baodongnai.com.vn/chinh-tri/202412/ky-niem-60-nam-chien-thang-binh-gia-2-12-moc-son-choi-loi-trong-lich-su-khang-chien-chong-de-quoc-my-a3751aa/" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
 <div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">CHIẾN DỊCH BÌNH GIÃ, SỨC MẠNH CỦA THẾ TRẬN CHIẾN TRANH NHÂN DÂN</strong><a href="https://www.youtube.com/watch?v=ntbXGEt3BZQ" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
         {
           year: 1964, date: '1964', title: 'Mỹ leo thang chiến tranh', location: 'Vịnh Bắc Bộ', lat: 18.5, lng: 107.5,
           details: ['Sự kiện Vịnh Bắc Bộ (giả tạo)', 'Mỹ tăng cường viện trợ quân sự cho Sài Gòn'],
-          result: 'Chuẩn bị leo thang chiến tranh ra miền Bắc', type: 'north'
+          result: 'Chuẩn bị leo thang chiến tranh ra miền Bắc', type: 'north',
+          longContent: `<p>Sự kiện Vịnh Bắc Bộ (tháng 8/1964) là một "vở kịch" chính trị được dàn dựng công phu, đánh dấu bước leo thang quân sự nghiêm trọng nhất của Mỹ kể từ sau năm 1954, trực tiếp mở đường cho cuộc chiến tranh phá hoại miền Bắc.</p>
+<h4>1. Diễn biến Sự kiện Vịnh Bắc Bộ (2/8 và 4/8/1964)</h4>
+<ul>
+<li><strong>Sự thật lịch sử:</strong> Đêm 2/8/1964, tàu ma tàu tuần tiễu của ta đánh đuổi tàu khu trục Maddox của Mỹ xâm phạm hải phận. Đến đêm 4/8/1964, phía Mỹ tự dựng lên "sự kiện thứ hai", cáo buộc hải quân Việt Nam tấn công tàu chiến Mỹ ở vùng biển quốc tế.</li>
+<li><strong>Mục đích của Mỹ:</strong> Lấy cớ để Quốc hội Mỹ thông qua Nghị quyết Vịnh Bắc Bộ, cho phép Tổng thống Lyndon B. Johnson toàn quyền sử dụng lực lượng vũ trang tại Đông Nam Á mà không cần tuyên chiến chính thức.</li>
+<li><strong>Hành động leo thang:</strong> Ngay sau đó, Mỹ thực hiện chiến dịch "Mũi tên xuyên" (Pierce Arrow), ném bom bắn phá nhiều cửa biển ở miền Bắc (Lạch Trường, Hòn Gai, sông Gianh...).</li>
+</ul>
+<h4>2. Mỹ tăng cường viện trợ quân sự cho Sài Gòn</h4>
+<p>Trong năm 1964, song song với việc ném bom miền Bắc, Mỹ đã "bơm" một lượng nguồn lực khổng lồ để cứu vãn chính quyền Sài Gòn đang rệu rã:</p>
+<ul>
+<li><strong>Nhân lực:</strong> Số lượng cố vấn quân sự Mỹ tăng vọt từ khoảng 16.000 (đầu năm) lên hơn 23.000 người (cuối năm).</li>
+<li><strong>Vũ khí:</strong> Chuyển giao hàng loạt máy bay chiến đấu thế hệ mới, xe bọc thép M113 và tàu tuần tiễu tốc độ cao.</li>
+<li><strong>Tài chính:</strong> Viện trợ quân sự tăng thêm hàng trăm triệu USD để duy trì bộ máy quân đội Sài Gòn sau hàng loạt cuộc đảo chính.</li>
+</ul>
+<h4>3. Kết quả và Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Tính chất cuộc chiến thay đổi:</strong> Cuộc chiến không còn gói gọn trong ranh giới miền Nam mà đã lan rộng ra toàn quốc. Miền Bắc chính thức chuyển sang trạng thái thời chiến.</li>
+<li><strong>Sự thất bại của "Chiến tranh đặc biệt":</strong> Việc phải ném bom miền Bắc và tăng viện trợ khẩn cấp cho thấy Mỹ đã bất lực trong việc dùng quân đội Sài Gòn để dập tắt cách mạng.</li>
+<li><strong>Tinh thần quyết chiến:</strong> Đáp lại sự leo thang của Mỹ, miền Bắc dấy lên phong trào "Tay cày tay súng, tay búa tay súng", quyết tâm bảo vệ hậu phương và chi viện cho tiền tuyến.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Sự Kiện VỊNH BẮC BỘ - Màn Kịch KINH ĐIỂN Và Lời Nói Dối THẾ KỶ Của Đế Quốc Mỹ</strong><a href="https://www.youtube.com/watch?v=6OcVWZuDZKc" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
 
         // 1965
@@ -1290,7 +1434,29 @@
         {
           year: 1965, date: '1965', title: 'Chiến lược "Chiến tranh đặc biệt" thất bại', location: 'Sài Gòn', lat: 10.75, lng: 106.68,
           details: ['Sau 4 năm, chiến lược hoàn toàn thất bại', 'Mỹ buộc phải đổi sang chiến lược "Chiến tranh cục bộ"', 'Đưa quân chiến đấu Mỹ vào trực tiếp tham chiến'],
-          result: 'Mỹ chuyển sang chiến lược chiến tranh mới', type: 'south'
+          result: 'Mỹ chuyển sang chiến lược chiến tranh mới', type: 'south',
+          longContent: `<p>Năm 1965 đánh dấu sự phá sản hoàn toàn của chiến lược "Chiến tranh đặc biệt" (1961–1965). Đây là một cột mốc mang tính bước ngoặt, buộc đế quốc Mỹ phải thừa nhận sự thất bại của mô hình "dùng người Việt đánh người Việt" và trực tiếp dấn thân vào một cuộc chiến tiêu hao quy mô lớn hơn.</p>
+<h4>1. Dấu hiệu phá sản hoàn toàn</h4>
+<p>Sau 4 năm nỗ lực, cả ba trụ cột của "Chiến tranh đặc biệt" đều sụp đổ:</p>
+<ul>
+<li><strong>Về quân sự:</strong> Quân đội Sài Gòn không còn khả năng tự đứng vững sau các đòn đánh tiêu diệt hiệp đồng binh chủng tại Ba Gia và Đồng Xoài. Các chiến thuật "Trực thăng vận" và "Thiết xa vận" bị vô hiệu hóa.</li>
+<li><strong>Về chính trị:</strong> Hệ thống Ấp chiến lược – vốn được coi là "xương sống" của chiến lược – đã bị nhân dân miền Nam phá tan rã đến 4/5 số lượng, vùng giải phóng được mở rộng liên hoàn.</li>
+<li><strong>Về thượng tầng:</strong> Chính quyền Sài Gòn rơi vào cuộc khủng hoảng triền miên sau cái chết của Ngô Đình Diệm, không một phe phái nào đủ uy tín để ổn định tình hình.</li>
+</ul>
+<h4>2. Bước ngoặt: Chuyển sang "Chiến tranh cục bộ"</h4>
+<p>Để cứu vãn tình thế, Tổng thống Lyndon B. Johnson đã đưa ra quyết định thay đổi tính chất cuộc chiến:</p>
+<ul>
+<li><strong>Đưa quân viễn chinh vào tham chiến:</strong> Ngày 8/3/1965, những đơn vị Thủy quân lục chiến Mỹ đầu tiên đổ bộ lên Đà Nẵng, chính thức chuyển từ vai trò "cố vấn" sang "quân chiến đấu trực tiếp".</li>
+<li><strong>Mở rộng quy mô:</strong> Mỹ không còn chỉ dựa vào quân đội Sài Gòn mà lấy quân Mỹ làm lực lượng cơ động chủ lực để "tìm và diệt", đồng thời dùng không quân đánh phá ác liệt miền Bắc.</li>
+</ul>
+<h4>3. Ý nghĩa đối với lý luận Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận 30 trang của bạn, sự kiện này là minh chứng cho sự thất bại của một mô hình thực dân mới gián tiếp. Khi các cấu trúc chính trị và quân sự bản xứ (chính quyền Sài Gòn) không thể duy trì trật tự cho giai cấp thống trị (đế quốc Mỹ), Mỹ buộc phải bộc lộ bản chất xâm lược trực tiếp.</p>
+<p>Điều này dẫn đến một sự thay đổi lớn trong phương thức sinh hoạt xã hội của cả hai miền:</p>
+<ul>
+<li><strong>Miền Bắc:</strong> Chuyển từ kinh tế thời bình sang kinh tế thời chiến, thực hiện sơ tán và công nghiệp hóa địa phương để đối phó với ném bom.</li>
+<li><strong>Miền Nam:</strong> Chịu tác động trực tiếp từ sự hiện diện của hàng vạn quân ngoại bang, gây ra những xáo trộn lớn về văn hóa và cấu trúc kinh tế đô thị.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Video/Báo chí tư liệu (Chiến lược "Chiến tranh đặc biệt" thất bại)</strong><a href="https://www.qdnd.vn/ho-so-su-kien/40-nam-chien-thang-vi-dai-30-4/danh-bai-chien-luoc-chien-tranh-dac-biet-259870" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
         },
       ];
 
@@ -1351,6 +1517,10 @@
       function clearMarkers() {
         currentMarkers.forEach(m => map.removeLayer(m));
         currentMarkers = [];
+        if (window.currentClusterLayer) {
+          map.removeLayer(window.currentClusterLayer);
+          window.currentClusterLayer = null;
+        }
       }
 
       function createMarkerIcon(type) {
@@ -1379,7 +1549,7 @@
         const ev = window.EVENTS_DATA[idx];
         document.getElementById('modal-title').textContent = ev.title;
         document.getElementById('modal-date').textContent = "📅 " + ev.date;
-        document.getElementById('modal-loc').textContent = "📍 " + ev.location;
+        document.getElementById('modal-loc').innerHTML = "📍 " + ev.location;
 
         const resultEl = document.getElementById('modal-result');
         if (ev.longContent) {
@@ -1420,14 +1590,30 @@
 
         const filtered = EVENTS.filter(e => e.year === year);
 
-        // render markers
+        // render markers with clustering
+        const markersCluster = L.markerClusterGroup({
+          showCoverageOnHover: false,
+          maxClusterRadius: 40,
+          spiderfyOnMaxZoom: true,
+          iconCreateFunction: function (cluster) {
+            return L.divIcon({
+              html: `<div style="background-color: var(--red); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Space Mono', monospace; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4)">${cluster.getChildCount()}</div>`,
+              className: 'custom-cluster-icon',
+              iconSize: L.point(32, 32)
+            });
+          }
+        });
+
         filtered.forEach(ev => {
           const icon = createMarkerIcon(ev.type);
           const marker = L.marker([ev.lat, ev.lng], { icon });
           marker.bindPopup(popupHTML(ev), { maxWidth: 300 });
-          marker.addTo(map);
+          markersCluster.addLayer(marker);
           currentMarkers.push(marker);
         });
+
+        map.addLayer(markersCluster);
+        window.currentClusterLayer = markersCluster;
 
         // fit map to markers
         if (currentMarkers.length > 0) {
