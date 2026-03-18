@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "prompt": "Theo Hiệp định Giơ-ne-vơ, tổng tuyển cử thống nhất Việt Nam dự kiến tổ chức vào năm nào?",
+    "choices": [
+      { "key": "A", "text": "1955" },
+      { "key": "B", "text": "1956" },
+      { "key": "C", "text": "1957" },
+      { "key": "D", "text": "1958" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 2,
+    "prompt": "Sau năm 1954, miền Bắc giữ vai trò gì trong chiến lược cách mạng Việt Nam?",
+    "choices": [
+      { "key": "A", "text": "Tiền tuyến" },
+      { "key": "B", "text": "Hậu phương lớn" },
+      { "key": "C", "text": "Trung lập" },
+      { "key": "D", "text": "Không tham gia chiến tranh" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 3,
+    "prompt": "Nghị quyết nào của Đảng năm 1959 cho phép cách mạng miền Nam sử dụng đấu tranh vũ trang?",
+    "choices": [
+      { "key": "A", "text": "Nghị quyết 12" },
+      { "key": "B", "text": "Nghị quyết 15" },
+      { "key": "C", "text": "Nghị quyết 20" },
+      { "key": "D", "text": "Nghị quyết 25" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 4,
+    "prompt": "Đường vận tải chiến lược nối miền Bắc với miền Nam mở năm 1959 có tên gọi là gì?",
+    "choices": [
+      { "key": "A", "text": "Đường số 9" },
+      { "key": "B", "text": "Đường Trường Sơn" },
+      { "key": "C", "text": "Đường Đông Dương" },
+      { "key": "D", "text": "Đường Nam Bắc" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 5,
+    "prompt": "Đại hội đại biểu toàn quốc lần thứ III của Đảng Lao động Việt Nam được tổ chức vào năm nào?",
+    "choices": [
+      { "key": "A", "text": "1958" },
+      { "key": "B", "text": "1959" },
+      { "key": "C", "text": "1960" },
+      { "key": "D", "text": "1962" }
+    ],
+    "answer": "C"
+  },
+  {
+    "id": 6,
+    "prompt": "Chiến lược chiến tranh của Mỹ tại miền Nam giai đoạn 1961–1965 là gì?",
+    "choices": [
+      { "key": "A", "text": "Chiến tranh cục bộ" },
+      { "key": "B", "text": "Chiến tranh đặc biệt" },
+      { "key": "C", "text": "Việt Nam hóa chiến tranh" },
+      { "key": "D", "text": "Chiến tranh tổng lực" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 7,
+    "prompt": "Chiến lược “Chiến tranh đặc biệt” của Mỹ chủ yếu dựa vào lực lượng nào?",
+    "choices": [
+      { "key": "A", "text": "Quân Mỹ" },
+      { "key": "B", "text": "Quân đội Sài Gòn và cố vấn Mỹ" },
+      { "key": "C", "text": "Quân Pháp" },
+      { "key": "D", "text": "Quân Liên Hợp Quốc" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 8,
+    "prompt": "Một biện pháp quan trọng của chiến lược “Chiến tranh đặc biệt” là gì?",
+    "choices": [
+      { "key": "A", "text": "Xây dựng ấp chiến lược" },
+      { "key": "B", "text": "Ký hiệp định hòa bình" },
+      { "key": "C", "text": "Thành lập NATO" },
+      { "key": "D", "text": "Mở rộng chiến tranh sang Lào" }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 9,
+    "prompt": "Sau sự kiện Vịnh Bắc Bộ năm 1964, Quốc hội Mỹ đã thông qua nghị quyết nào?",
+    "choices": [
+      { "key": "A", "text": "Nghị quyết Paris" },
+      { "key": "B", "text": "Nghị quyết Vịnh Bắc Bộ" },
+      { "key": "C", "text": "Nghị quyết ASEAN" },
+      { "key": "D", "text": "Nghị quyết Đông Dương" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 10,
+    "prompt": "Nghị quyết Trung ương 9 (1963) của Đảng khẳng định điều gì?",
+    "choices": [
+      { "key": "A", "text": "Đấu tranh ngoại giao là chủ yếu" },
+      { "key": "B", "text": "Đấu tranh vũ trang giữ vai trò quyết định trực tiếp" },
+      { "key": "C", "text": "Chấm dứt chiến tranh" },
+      { "key": "D", "text": "Ngừng đấu tranh chính trị" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 11,
+    "prompt": "Bí thư Trung ương Cục miền Nam từ năm 1961 là ai?",
+    "choices": [
+      { "key": "A", "text": "Nguyễn Văn Linh" },
+      { "key": "B", "text": "Nguyễn Chí Thanh" },
+      { "key": "C", "text": "Lê Duẩn" },
+      { "key": "D", "text": "Phạm Hùng" }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 12,
+    "prompt": "Trận đánh lớn ở miền Nam tháng 12/1964 là trận nào?",
+    "choices": [
+      { "key": "A", "text": "Bình Giã" },
+      { "key": "B", "text": "Ba Gia" },
+      { "key": "C", "text": "Đông Xoài" },
+      { "key": "D", "text": "Ấp Bắc" }
+    ],
+    "answer": "A"
+  },
+  {
+    "id": 13,
+    "prompt": "Đại hội Đảng lần thứ III xác định nhiệm vụ chiến lược nào?",
+    "choices": [
+      { "key": "A", "text": "Thống nhất Đông Dương" },
+      { "key": "B", "text": "Xây dựng CNXH ở miền Bắc và giải phóng miền Nam" },
+      { "key": "C", "text": "Phát triển kinh tế thị trường" },
+      { "key": "D", "text": "Liên minh NATO" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 14,
+    "prompt": "Đường Hồ Chí Minh chủ yếu chạy dọc theo dãy núi nào?",
+    "choices": [
+      { "key": "A", "text": "Hoàng Liên Sơn" },
+      { "key": "B", "text": "Trường Sơn" },
+      { "key": "C", "text": "Tam Đảo" },
+      { "key": "D", "text": "Bạch Mã" }
+    ],
+    "answer": "B"
+  },
+  {
+    "id": 15,
+    "prompt": "Lực lượng vũ trang ở miền Nam thống nhất tên gọi “Quân giải phóng miền Nam Việt Nam” vào năm nào?",
+    "choices": [
+      { "key": "A", "text": "1959" },
+      { "key": "B", "text": "1960" },
+      { "key": "C", "text": "1961" },
+      { "key": "D", "text": "1962" }
+    ],
+    "answer": "C"
+  },
+  {
+    "id": 16,
+    "prompt": "Đúng / Sai: Miền Nam sau năm 1954 được xác định là hậu phương lớn của cách mạng.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 17,
+    "prompt": "Đúng / Sai: Phong trào Đồng Khởi bùng nổ đầu tiên tại Bình Định.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 18,
+    "prompt": "Đúng / Sai: “Chiến tranh đặc biệt” là chiến lược Mỹ trực tiếp đưa quân Mỹ chiến đấu quy mô lớn vào miền Nam.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 19,
+    "prompt": "Đúng / Sai: Đường Trường Sơn được mở nhằm mục đích vận chuyển lực lượng và vật chất từ Bắc vào Nam.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 20,
+    "prompt": "Đúng / Sai: Mặt trận Dân tộc Giải phóng miền Nam Việt Nam ra đời năm 1960.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 21,
+    "prompt": "Đúng / Sai: Chiến thắng Ấp Bắc diễn ra năm 1962.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 22,
+    "prompt": "Đúng / Sai: Chính quyền Ngô Đình Diệm bị lật đổ sau cuộc đảo chính năm 1963.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 23,
+    "prompt": "Đúng / Sai: Sự kiện Vịnh Bắc Bộ xảy ra năm 1964.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 24,
+    "prompt": "Đúng / Sai: Sau năm 1954 miền Bắc phát triển theo con đường tư bản chủ nghĩa.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 25,
+    "prompt": "Đúng / Sai: Nghị quyết 15 của Đảng được ban hành năm 1959.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 26,
+    "prompt": "Đúng / Sai: Đại hội Đảng lần III tổ chức tại Huế.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 27,
+    "prompt": "Đúng / Sai: Đường Hồ Chí Minh được mở vào năm 1959.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 28,
+    "prompt": "Đúng / Sai: Mỹ lập “ấp chiến lược” để kiểm soát nông thôn miền Bắc.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "S"
+  },
+  {
+    "id": 29,
+    "prompt": "Đúng / Sai: Khủng hoảng Phật giáo ở miền Nam diễn ra năm 1963.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 30,
+    "prompt": "Đúng / Sai: Chiến thắng Điện Biên Phủ diễn ra năm 1954.",
+    "choices": [
+      { "key": "Đ", "text": "Đúng" },
+      { "key": "S", "text": "Sai" }
+    ],
+    "answer": "Đ"
+  },
+  {
+    "id": 31,
+    "prompt": "Điền vào chỗ trống: Hiệp định Genève (1954) quy định Việt Nam tạm thời chia cắt tại vĩ tuyến … .",
+    "choices": [],
+    "answer": "17"
+  },
+  {
+    "id": 32,
+    "prompt": "Điền vào chỗ trống: Phong trào … năm 1960 bùng nổ đầu tiên tại tỉnh Bến Tre.",
+    "choices": [],
+    "answer": "Đồng Khởi"
+  },
+  {
+    "id": 33,
+    "prompt": "Điền vào chỗ trống: Tuyến đường chiến lược chi viện cho miền Nam được gọi là Đường … .",
+    "choices": [],
+    "answer": "Trường Sơn"
+  },
+  {
+    "id": 34,
+    "prompt": "Điền vào chỗ trống: Đại hội III xác định cách mạng Việt Nam tiến hành hai chiến lược khác nhau ở __________ và __________.",
+    "choices": [],
+    "answer": "miền Bắc và miền Nam"
+  },
+  {
+    "id": 35,
+    "prompt": "Điền vào chỗ trống: Sau năm 1954, Mỹ từng bước thay __________ kiểm soát miền Nam Việt Nam.",
+    "choices": [],
+    "answer": "Pháp"
+  },
+  {
+    "id": 36,
+    "prompt": "Điền vào chỗ trống: Ngày 20/12/1960 thành lập __________ nhằm tập hợp các lực lượng yêu nước ở miền Nam.",
+    "choices": [],
+    "answer": "Mặt trận Dân tộc Giải phóng miền Nam Việt Nam"
+  },
+  {
+    "id": 37,
+    "prompt": "Điền vào chỗ trống: Trong xây dựng kinh tế miền Bắc sau 1954, Đảng xác định __________ là mặt trận hàng đầu.",
+    "choices": [],
+    "answer": "nông nghiệp"
+  },
+  {
+    "id": 38,
+    "prompt": "Điền vào chỗ trống: Trong quá trình xây dựng CNXH, Đảng xác định __________ xã hội chủ nghĩa là nhiệm vụ trung tâm.",
+    "choices": [],
+    "answer": "công nghiệp hóa"
+  },
+  {
+    "id": 39,
+    "prompt": "Điền vào chỗ trống: Kế hoạch 5 năm lần thứ nhất được thực hiện trong giai đoạn __________.",
+    "choices": [],
+    "answer": "1961–1965"
+  },
+  {
+    "id": 40,
+    "prompt": "Điền vào chỗ trống: Trong cải cách ruộng đất, Đảng chủ trương dựa vào __________ và đoàn kết với trung nông.",
+    "choices": [],
+    "answer": "bần cố nông"
+  },
+  {
+    "id": 41,
+    "prompt": "Sắp xếp các chữ cái sau thành một cụm từ có nghĩa: H / G / K / Ồ / Đ / I / N / Ở",
+    "choices": [],
+    "answer": "Đồng Khởi"
+  },
+  {
+    "id": 42,
+    "prompt": "Sắp xếp các chữ cái sau thành một cụm từ có nghĩa: Ơ / T / N / Ờ / S / G / Đ / Ư / N / Ờ / R / G / N / Ư",
+    "choices": [],
+    "answer": "Đường Trường Sơn"
+  },
+  {
+    "id": 43,
+    "prompt": "Sắp xếp các chữ cái sau thành một cụm từ có nghĩa: N / P / Â / Ộ / M / G / T / I / Ả / Ậ / D / N / Ặ / H / T / G / Ó / T / R / I / C / N",
+    "choices": [],
+    "answer": "Mặt trận Dân tộc Giải phóng"
+  },
+  {
+    "id": 44,
+    "prompt": "Sắp xếp các chữ cái sau thành một cụm từ có nghĩa: C / Ấ / B / Ắ / P",
+    "choices": [],
+    "answer": "Ấp Bắc"
+  },
+  {
+    "id": 45,
+    "prompt": "Sắp xếp các chữ cái sau thành một cụm từ có nghĩa: B / V / Ộ / Ị / H / Ắ / C / N / B",
+    "choices": [],
+    "answer": "Vịnh Bắc Bộ"
+  },
+  {
+    "id": 46,
+    "prompt": "Ai nói câu: “Trung, Nam, Bắc đều là bờ cõi của ta, nước ta nhất định sẽ thống nhất.”",
+    "choices": [],
+    "answer": "Hồ Chí Minh"
+  },
+  {
+    "id": 47,
+    "prompt": "Điền vào chỗ trống: “Không có gì quý hơn ______.”",
+    "choices": [],
+    "answer": "Độc lập tự do"
+  },
+  {
+    "id": 48,
+    "prompt": "Ai nói câu: “Dù phải đốt cháy cả dãy Trường Sơn cũng phải giành cho được độc lập.”",
+    "choices": [],
+    "answer": "Hồ Chí Minh"
+  },
+  {
+    "id": 49,
+    "prompt": "Ai là Tổng Bí thư Đảng Lao động Việt Nam lãnh đạo cách mạng miền Nam?",
+    "choices": [],
+    "answer": "Lê Duẩn"
+  },
+  {
+    "id": 50,
+    "prompt": "Người được cử vào miền Nam trực tiếp chỉ đạo kháng chiến năm 1964 là ai?",
+    "choices": [],
+    "answer": "Nguyễn Chí Thanh"
+  }
+]
