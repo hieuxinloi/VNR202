@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch Sử Đảng Việt Nam 1954–1965</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    :root {
+      --red: #c0392b;
+      --red-deep: #8b1c1c;
+      --gold: #d4a017;
+      --gold-lt: #f0c040;
+      --cream: #f5f0e8;
+      --ink: #1a1008;
+      --paper: #faf6ef;
+      --border: #c8b89a;
+      --shadow: rgba(30, 10, 0, 0.18);
+      --north: rgba(192, 57, 43, 0.72);
+      --south: rgba(212, 160, 23, 0.72);
+      --map-bg: #e8dfc8;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      background: var(--ink);
+      color: var(--ink);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 900;
+      background: var(--ink);
+      border-bottom: 3px solid var(--gold);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-star {
+      color: var(--gold);
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 6px;
+      opacity: 0.85;
+    }
+
+    .header-title {
+      text-align: center;
+      flex: 1;
+    }
+
+    .header-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(16px, 2.2vw, 26px);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      line-height: 1.15;
+    }
+
+    .header-title p {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--border);
+      letter-spacing: 2px;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    .header-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+      padding: 4px 10px;
+      letter-spacing: 1.5px;
+      opacity: 0.7;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-right: 15px;
+    }
+
+    .nav-btn {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--gold-lt);
+      border: 2px solid var(--gold);
+      padding: 8px 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.2s;
+      background: rgba(26, 16, 8, 0.4);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .nav-btn:hover {
+      background: rgba(212, 160, 23, 0.2);
+      color: #fff;
+      border-color: var(--gold-lt);
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.active {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+      box-shadow: 0 4px 10px rgba(192, 57, 43, 0.4);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main-wrap {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── LEFT COLUMN (map + timeline) ── */
+    .left-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ── MAP ── */
+    #map {
+      flex: 1;
+      background: var(--map-bg);
+      position: relative;
+      min-height: 0;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 340px;
+      flex-shrink: 0;
+      background: var(--paper);
+      border-left: 3px solid var(--gold);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      z-index: 50;
+    }
+
+    .sidebar-header {
+      background: var(--ink);
+      color: var(--gold);
+      padding: 14px 20px;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--gold);
+      flex-shrink: 0;
+    }
+
+    .context-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) var(--cream);
+      font-family: 'Arial', sans-serif;
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: #333;
+    }
+
+    .context-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .context-content::-webkit-scrollbar-track {
+      background: var(--cream);
+    }
+
+    .context-content::-webkit-scrollbar-thumb {
+      background: var(--gold);
+      border-radius: 3px;
+    }
+
+    .context-paragraph {
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+
+    .context-highlight {
+      font-weight: 700;
+      color: var(--red-deep);
+    }
+
+    /* ── TIMELINE STRIP ── */
+    .timeline-wrap {
+      flex-shrink: 0;
+      z-index: 200;
+      background: var(--ink);
+      border-top: 2px solid var(--gold);
+      padding: 14px 28px 16px;
+    }
+
+    .timeline-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4px;
+    }
+
+    .tl-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--border);
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color 0.15s;
+      padding: 2px 0;
+      position: relative;
+    }
+
+    .tl-label::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 6px;
+      background: var(--border);
+      margin: 3px auto 0;
+    }
+
+    .tl-label.active,
+    .tl-label:hover {
+      color: var(--gold-lt);
+    }
+
+    .tl-label.active::after {
+      background: var(--gold-lt);
+    }
+
+    .tl-track {
+      position: relative;
+      height: 28px;
+      display: flex;
+      align-items: center;
+    }
+
+    .tl-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(200, 184, 154, 0.25);
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .tl-filled {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+      border-radius: 2px;
+      pointer-events: none;
+      transition: width 0.15s;
+    }
+
+    .tl-thumb {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--gold);
+      border: 3px solid var(--paper);
+      border-radius: 50%;
+      cursor: grab;
+      transform: translateX(-50%);
+      top: 50%;
+      margin-top: -11px;
+      box-shadow: 0 0 0 3px var(--gold-lt), 0 3px 10px rgba(0, 0, 0, 0.5);
+      transition: left 0.12s, transform 0.12s;
+      z-index: 10;
+    }
+
+    .tl-thumb:active {
+      cursor: grabbing;
+      transform: translateX(-50%) scale(1.15);
+    }
+
+    .tl-thumb-year {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold-lt);
+      white-space: nowrap;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+      pointer-events: none;
+    }
+
+    /* Event dots on tl-bar */
+    .tl-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--red);
+      border: 2px solid var(--paper);
+      border-radius: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      top: 50%;
+      cursor: pointer;
+      z-index: 5;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .tl-dot:hover {
+      background: var(--gold);
+      transform: translateX(-50%) translateY(-50%) scale(1.4);
+    }
+
+    /* ── LEGEND ── */
+    .legend-box {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 500;
+      background: rgba(250, 246, 239, 0.95);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--red);
+      border-radius: 6px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 16px var(--shadow);
+      font-size: 12.5px;
+    }
+
+    .legend-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 9px;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+    }
+
+    .leg-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      color: #444;
+    }
+
+    .leg-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+    }
+
+    .leg-line {
+      width: 22px;
+      height: 3px;
+      border-top: 3px dashed #111;
+      flex-shrink: 0;
+    }
+
+    /* ── MARKERS ── */
+    .ev-marker {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ev-marker-inner {
+      width: 20px;
+      height: 20px;
+      background: var(--red);
+      border: 2.5px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.4), 0 2px 8px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.4), 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 7px rgba(192, 57, 43, 0.12), 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .ev-marker-inner.gold {
+      background: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.4), 0 2px 8px rgba(0, 0, 0, 0.4);
+      animation: pulse-gold 2s infinite;
+    }
+
+    @keyframes pulse-gold {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 7px rgba(212, 160, 23, 0.12);
+      }
+    }
+
+    /* Leaflet popup override */
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--red);
+      box-shadow: 0 6px 24px var(--shadow);
+      font-family: 'Libre Baskerville', serif;
+      max-width: 300px;
+    }
+
+    .leaflet-popup-content {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink);
+      padding: 4px 2px;
+    }
+
+    .popup-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--red-deep);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .popup-date {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .popup-detail {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .popup-result {
+      font-size: 12px;
+      color: var(--red-deep);
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    /* Scrollbar for body */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Range input style */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      z-index: 20;
+      opacity: 0;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(26, 16, 8, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content-wrap {
+      position: relative;
+      width: 95%;
+      max-width: 1400px;
+      height: 90%;
+      max-height: 1000px;
+      background: linear-gradient(rgba(245, 240, 232, 0.75), rgba(245, 240, 232, 0.85)), url('images/notebook.jpg') center/cover no-repeat;
+      background-color: #faf6ef;
+      /* Fallback color */
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      padding: 50px 60px;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-overlay.active .modal-content-wrap {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      color: #333;
+      cursor: pointer;
+      line-height: 1;
+      z-index: 10;
+      font-weight: bold;
+    }
+
+    .modal-close:hover {
+      color: var(--red);
+    }
+
+    .modal-inner {
+      flex: 1;
+      overflow-y: auto;
+      font-family: 'Arial', sans-serif;
+      color: #222;
+      padding-right: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+    }
+
+    .modal-inner::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-inner::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+    }
+
+    .modal-title {
+      font-family: 'Arial', sans-serif;
+      font-size: 26px;
+      font-weight: bold;
+      color: #8b1c1c;
+      margin-bottom: 10px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+      padding-bottom: 15px;
+    }
+
+    .modal-meta {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .modal-details {
+      font-size: 16px;
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+
+    .modal-details h4 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #8b1c1c;
+      font-size: 18px;
+    }
+
+    .modal-details p {
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .modal-details ul {
+      padding-left: 20px;
+      margin-top: 10px;
+    }
+
+    .modal-details li {
+      margin-bottom: 10px;
+    }
+
+    .modal-result {
+      font-size: 16px;
+      font-style: italic;
+      color: var(--red-deep);
+      background: rgba(192, 57, 43, 0.05);
+      padding: 15px;
+      border-left: 3px solid var(--red);
+    }
+
+    /* Popup button */
+    .popup-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 14px;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .popup-btn:hover {
+      background: var(--red-deep);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        width: 260px;
+      }
+
+      .timeline-wrap {
+        padding: 10px 14px 12px;
+      }
+
+      .modal-content-wrap {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-star">★ ★ ★ ★ ★</div>
+    <div class="header-title">
+      <h1>Lịch Sử Đảng Cộng Sản Việt Nam</h1>
+      <p>Giai đoạn 1954 – 1965 · Bản đồ tương tác lịch sử</p>
+    </div>
+    <div class="header-nav">
+      <a href="#" class="nav-btn active">GIÁO DỤC</a>
+      <a href="../game/index.html" class="nav-btn">TRÒ CHƠI ÔN TẬP</a>
+    </div>
+  </header>
+
+  <div class="main-wrap">
+    <!-- LEFT COLUMN: map + timeline -->
+    <div class="left-col">
+
+      <!-- MAP -->
+      <div id="map">
+        <!-- LEGEND -->
+        <div class="legend-box">
+          <h4>Chú giải</h4>
+          <div class="leg-row">
+            <div class="leg-swatch" style="background:rgba(192,57,43,0.65)"></div>
+            <span>Bắc Việt Nam (VNDCCH)</span>
+          </div>
+          <div class="leg-row">
+            <div class="leg-swatch" style="background:rgba(212,160,23,0.65)"></div>
+            <span>Nam Việt Nam (VNCH)</span>
+          </div>
+          <div class="leg-row">
+            <div class="leg-line"></div>
+            <span>Vĩ tuyến 17 · Sông Bến Hải</span>
+          </div>
+          <div class="leg-row">
+            <div class="leg-swatch"
+              style="background:var(--red);border-radius:50%;width:14px;height:14px;margin-left:2px;"></div>
+            <span>Sự kiện lịch sử</span>
+          </div>
+        </div>
+      </div><!-- end #map -->
+
+      <!-- TIMELINE (always visible, below map) -->
+      <div class="timeline-wrap">
+        <div class="timeline-inner">
+          <div class="timeline-labels" id="tl-labels"></div>
+          <div class="tl-track" id="tl-track">
+            <div class="tl-bar" id="tl-bar">
+              <div class="tl-filled" id="tl-filled"></div>
+              <!-- dots injected by JS -->
+            </div>
+            <div class="tl-thumb" id="tl-thumb">
+              <span class="tl-thumb-year" id="tl-thumb-year">1954</span>
+            </div>
+            <input type="range" id="tl-range" min="1954" max="1965" value="1954" step="1">
+          </div>
+        </div>
+      </div><!-- end timeline-wrap -->
+
+    </div><!-- end left-col -->
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+        </svg>
+        Bối cảnh lịch sử
+      </div>
+      <div class="context-content">
+        <div class="context-paragraph">
+          Sau <span class="context-highlight">Hiệp định Giơnevơ (1954)</span>, Việt Nam tạm thời bị chia cắt thành hai
+          miền tại vĩ tuyến 17. Miền Bắc được giải phóng, bước vào xây dựng chủ nghĩa xã hội và trở thành hậu phương
+          lớn; trong khi miền Nam nằm dưới sự kiểm soát của Mỹ và chính quyền thân Mỹ, trở thành thuộc địa kiểu mới.
+        </div>
+        <div class="context-paragraph">
+          Bối cảnh quốc tế vừa thuận lợi (sự phát triển của hệ thống xã hội chủ nghĩa, phong trào giải phóng dân tộc)
+          vừa khó khăn (Chiến tranh Lạnh, Mỹ mạnh lên, mâu thuẫn trong phe xã hội chủ nghĩa). Trong nước cũng tồn tại
+          song song thuận lợi và thách thức như đất nước bị chia cắt, kinh tế khó khăn và sự can thiệp của Mỹ.
+        </div>
+        <div class="context-paragraph">
+          Trước tình hình đó, Đảng xác định cần xây dựng đường lối cách mạng phù hợp. Tại <span
+            class="context-highlight">Đại hội III (1960)</span>, Đảng đề ra chiến lược tiến hành hai nhiệm vụ cách mạng
+          song song: xây dựng chủ nghĩa xã hội ở miền Bắc và đấu tranh giải phóng miền Nam, hướng tới thống nhất đất
+          nước.
+        </div>
+        <div class="context-paragraph">
+          <span class="context-highlight">Miền Bắc</span> giữ vai trò quyết định lâu dài với tư cách hậu phương lớn, còn
+          <span class="context-highlight">miền Nam</span> là tiền tuyến, giữ vai trò quyết định trực tiếp trong việc
+          hoàn thành mục tiêu thống nhất.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="event-modal">
+    <div class="modal-content-wrap">
+      <div class="modal-close" onclick="closeModal()">×</div>
+      <div class="modal-inner">
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-meta">
+          <span id="modal-date"></span>
+          <span id="modal-loc"></span>
+        </div>
+        <div class="modal-details" id="modal-details"></div>
+        <div class="modal-result" id="modal-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // ─────────────────────────────────────────
+      //  DATA
+      // ─────────────────────────────────────────
+      const EVENTS = [
+        // 1954
+        {
+          year: 1954, date: '21/7/1954', title: 'Hiệp định Giơnevơ', location: 'Quảng Trị – Vĩ tuyến 17', lat: 17.015, lng: 107.1,
+          details: ['Chấm dứt chiến tranh Đông Dương', 'Việt Nam tạm thời chia cắt tại vĩ tuyến 17', 'Hai miền sẽ tổng tuyển cử thống nhất đất nước'],
+          result: 'Mở ra giai đoạn cách mạng mới', type: 'north'
+        },
+        {
+          year: 1954, date: '9/1954', title: 'Hội nghị Bộ Chính trị', location: 'Hà Nội', lat: 21.03, lng: 105.85,
+          details: ['Đề ra nhiệm vụ khôi phục kinh tế', 'Ổn định miền Bắc'], result: 'Xác định đường lối xây dựng miền Bắc', type: 'north',
+          longContent: `<p>Hội nghị Bộ Chính trị diễn ra vào tháng 9/1954 là một dấu mốc quan trọng ngay sau khi Hiệp định Giơnevơ được ký kết, nhằm xác định lại chiến lược của Cách mạng Việt Nam trong tình hình mới.</p>
+<h4>1. Bối cảnh lịch sử</h4>
+<ul>
+<li><strong>Hòa bình lập lại:</strong> Miền Bắc hoàn toàn giải phóng, nhưng bị tàn phá nặng nề sau 9 năm chiến tranh.</li>
+<li><strong>Đất nước tạm thời chia cắt:</strong> Miền Nam vẫn nằm dưới sự kiểm soát của đối phương.</li>
+<li><strong>Nhiệm vụ cấp bách:</strong> Cần một lộ trình để chuyển từ trạng thái chiến tranh sang xây dựng hòa bình và củng cố lực lượng.</li>
+</ul>
+<h4>2. Các nhiệm vụ trọng tâm được đề ra</h4>
+<p>Hội nghị đã xác định những nhiệm vụ cốt lõi để ổn định tình hình miền Bắc và chuẩn bị cho cuộc đấu tranh thống nhất:</p>
+<ul>
+<li><strong>Khôi phục kinh tế:</strong> Tập trung sửa chữa các công trình thủy lợi, phục hồi sản xuất nông nghiệp để chống đói; khôi phục hệ thống giao thông và các nhà máy quan trọng.</li>
+<li><strong>Củng cố miền Bắc:</strong> Xây dựng miền Bắc thành căn cứ địa vững chắc cho cả nước. Thực hiện tiếp tục cải cách ruộng đất để đem lại quyền lợi cho nông dân.</li>
+<li><strong>Ổn định đời sống nhân dân:</strong> Giải quyết các vấn đề an sinh xã hội, giáo dục và y tế sau chiến tranh.</li>
+<li><strong>Đấu tranh thi hành Hiệp định:</strong> Chuyển trọng tâm cuộc đấu tranh ở miền Nam sang hình thức đấu tranh chính trị để đòi đối phương thực hiện đúng các điều khoản của Hiệp định Giơnevơ.</li>
+</ul>
+<h4>3. Ý nghĩa của Hội nghị</h4>
+<p>Hội nghị tháng 9/1954 đã kịp thời chuyển hướng chiến lược, giúp miền Bắc nhanh chóng vượt qua giai đoạn khủng hoảng sau chiến tranh, tạo đà cho kế hoạch khôi phục kinh tế 3 năm (1955-1957). Đây chính là nền tảng để miền Bắc trở thành "hậu phương lớn" cho tiền tuyến miền Nam sau này.</p>`
+        },
+        {
+          year: 1954, date: '10/10/1954', title: 'Giải phóng Hà Nội', location: 'Hà Nội', lat: 21.04, lng: 105.86,
+          details: ['Quân đội nhân dân tiếp quản thủ đô', 'Kết thúc 9 năm kháng chiến chống Pháp'],
+          result: 'Miền Bắc bước vào thời kỳ hòa bình', type: 'north',
+          longContent: `<p>Sự kiện 10/10/1954 là một cột mốc rực rỡ trong lịch sử dân tộc, đánh dấu thất bại hoàn toàn của thực dân Pháp tại Việt Nam và mở ra một kỷ nguyên mới cho miền Bắc.</p>
+<h4>1. Diễn biến sự kiện</h4>
+<ul>
+<li><strong>Quá trình tiếp quản:</strong> Sáng ngày 10/10, các đơn vị của Quân đội Nhân dân Việt Nam từ các cửa ô tiến vào tiếp quản Thủ đô trong sự chào đón nồng nhiệt của hàng vạn người dân Hà Nội.</li>
+<li><strong>Lễ chào cờ lịch sử:</strong> Lúc 15 giờ cùng ngày, hàng chục vạn nhân dân và các đơn vị quân đội đã dự lễ chào cờ trang nghiêm tại sân vận động Cột Cờ. Tại đây, Chủ tịch Hội đồng Chính phủ đọc lời kêu gọi của Chủ tịch Hồ Chí Minh gửi đồng bào Thủ đô.</li>
+<li><strong>Tiếp quản hành chính:</strong> Việc tiếp quản diễn ra trong trật tự, an toàn, không có sự xáo trộn lớn về đời sống xã hội. Các công sở, nhà máy, bệnh viện được bàn giao lại cho chính quyền cách mạng.</li>
+</ul>
+<h4>2. Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Chấm dứt ách thống trị:</strong> Kết thúc gần 100 năm đô hộ của thực dân Pháp tại Hà Nội.</li>
+<li><strong>Cột mốc hòa bình:</strong> Miền Bắc hoàn toàn giải phóng, bắt đầu bước vào thời kỳ khôi phục kinh tế, xây dựng cơ sở vật chất cho Chủ nghĩa Xã hội.</li>
+<li><strong>Niềm tin và động lực:</strong> Sự kiện này là nguồn cổ vũ lớn lao cho cuộc đấu tranh chính trị của đồng bào miền Nam, khẳng định vị thế của Chính phủ Việt Nam Dân chủ Cộng hòa.</li>
+</ul>
+<h4>3. Tầm quan trọng đối với Cách mạng</h4>
+<p>Việc giải phóng Thủ đô không chỉ là giải phóng một thành phố, mà là giải phóng trung tâm chính trị, văn hóa, kinh tế của cả nước. Đây là bước ngoặt để Đảng và Chính phủ chuyển từ căn cứ địa Việt Bắc về Thủ đô để lãnh đạo sự nghiệp xây dựng và bảo vệ Tổ quốc.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Tiếp quản Thủ đô những ký ức hào hùng | Phim tài liệu lịch sử Giải phóng Thủ đô 10/10/1954</strong><a href="https://www.youtube.com/watch?v=0D2iyQQ7cRY" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1955
+        {
+          year: 1955, date: '16/5/1955', title: 'Pháp rút quân khỏi miền Bắc', location: 'Hải Phòng', lat: 20.87, lng: 106.68,
+          details: ['Quân Pháp rút khỏi cảng Hải Phòng', 'Chấm dứt sự hiện diện quân sự Pháp ở miền Bắc'],
+          result: 'Miền Bắc hoàn toàn giải phóng', type: 'north',
+          longContent: `<p>Sự kiện ngày 16/5/1955 đánh dấu một bước ngoặt quan trọng khi toán lính Pháp cuối cùng rút khỏi đảo Cát Bà (Hải Phòng), chính thức kết thúc sự hiện diện quân sự của thực dân Pháp tại miền Bắc Việt Nam sau gần một thế kỷ.</p>
+<h4>1. Ý nghĩa việc Pháp rút quân (16/5/1955)</h4>
+<ul>
+<li><strong>Giải phóng hoàn toàn miền Bắc:</strong> Đây là thời điểm miền Bắc sạch bóng quân xâm lược, tạo điều kiện để Đảng và Chính phủ tập trung toàn lực vào công cuộc khôi phục kinh tế và cải cách xã hội.</li>
+<li><strong>Căn cứ địa cách mạng:</strong> Miền Bắc trở thành hậu phương vững chắc, là "hình mẫu" để đồng bào miền Nam nhìn vào trong cuộc đấu tranh thống nhất.</li>
+</ul>
+<h4>2. Sự can thiệp của Mỹ và chính quyền Ngô Đình Diệm</h4>
+<p>Song song với việc Pháp rút đi, Mỹ đã nhanh chóng nhảy vào để lấp đầy "khoảng trống quyền lực" tại miền Nam:</p>
+<ul>
+<li><strong>Chiến lược "Thế chân Pháp":</strong> Mỹ không muốn thấy sự sụp đổ của các chế độ thân phương Tây tại Đông Nam Á. Họ dần thay thế Pháp về mặt viện trợ quân sự và cố vấn chính trị.</li>
+<li><strong>Xây dựng chính quyền Ngô Đình Diệm:</strong> Mỹ đưa Ngô Đình Diệm về nước, phế truất Bảo Đại để lập nên chế độ Việt Nam Cộng hòa.</li>
+<li><strong>Mục tiêu:</strong> Biến miền Nam Việt Nam thành một căn cứ quân sự và một "con đê ngăn chặn" chủ nghĩa cộng sản lan xuống phía Nam (Học thuyết Domino).</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baocaovien.vn/tin-tuc/hai-phong-kien-cuong-cau-chuyen-ve-long-tu-hao-va-y-chi-quat-cuong/224738.html#:~:text=ch%C3%AD%20qu%E1%BA%ADt%20c%C6%B0%E1%BB%9Dng-,Ng%C3%A0y%2013%2F5%2F1955%2C%20nh%E1%BB%AFng%20binh%20l%C3%ADnh%20Ph%C3%A1p%20cu%E1%BB%91i,m%E1%BA%BD%20trong%20th%E1%BB%9Di%20k%E1%BB%B3%20m%E1%BB%9Bi.</strong><a href="https://baocaovien.vn/tin-tuc/hai-phong-kien-cuong-cau-chuyen-ve-long-tu-hao-va-y-chi-quat-cuong/224738.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1955, date: '1955', title: 'Mỹ can thiệp miền Nam', location: 'Sài Gòn', lat: 10.78, lng: 106.7,
+          details: ['Thay Pháp kiểm soát miền Nam', 'Dựng chính quyền Ngô Đình Diệm', 'Tăng cường viện trợ quân sự'],
+          result: 'Bắt đầu thời kỳ Mỹ can thiệp trực tiếp', type: 'south'
+        },
+
+        // 1955-1956
+        {
+          year: 1955, date: '1955–1956', title: 'Cải cách ruộng đất', location: 'Đồng bằng Bắc Bộ', lat: 20.5, lng: 106.2,
+          details: ['Tịch thu ruộng đất của địa chủ', 'Chia lại cho nông dân nghèo', 'Xóa bỏ chế độ phong kiến'],
+          result: 'Xóa bỏ chế độ phong kiến về ruộng đất', type: 'north',
+          longContent: `<p>Cuộc Cải cách ruộng đất (1955–1956) là một trong những sự kiện có tầm ảnh hưởng sâu rộng nhất đến cấu trúc xã hội và kinh tế của miền Bắc Việt Nam sau chiến tranh.</p>
+<h4>1. Mục tiêu và Nội dung chính</h4>
+<ul>
+<li><strong>Khẩu hiệu:</strong> "Người cày có ruộng".</li>
+<li><strong>Đối tượng:</strong> Đánh đổ giai cấp địa chủ phong kiến, vốn là giai cấp thống trị và chiếm hữu phần lớn tư liệu sản xuất ở nông thôn từ hàng thế kỷ.</li>
+<li><strong>Hành động:</strong> * Tịch thu, trưng thu hoặc trưng mua ruộng đất, trâu bò, nông cụ từ tay địa chủ.</li>
+</ul>
+<p>Chia lại một cách công bằng cho hơn 2 triệu hộ gia đình nông dân nghèo, những người trước đây phải đi làm thuê hoặc thuê mướn ruộng đất với tô thuế cao.</p>
+<ul>
+<li><strong>Phạm vi:</strong> Triển khai trên diện rộng tại các vùng đồng bằng và trung du miền Bắc sau khi hòa bình lập lại.</li>
+</ul>
+<h4>2. Kết quả và Ý nghĩa</h4>
+<ul>
+<li><strong>Xóa bỏ chế độ phong kiến:</strong> Chấm dứt hoàn toàn sự tồn tại của giai cấp địa chủ và chế độ chiếm hữu ruộng đất phong kiến kéo dài hàng ngàn năm.</li>
+<li><strong>Thay đổi vị thế người nông dân:</strong> Nông dân từ thân phận làm thuê trở thành người chủ thực sự của ruộng đất và làng quê. Điều này tạo ra động lực sản xuất vô cùng lớn.</li>
+<li><strong>Củng cố khối liên minh Công - Nông:</strong> Thắt chặt tình đoàn kết giữa chính quyền cách mạng và lực lượng lao động đông đảo nhất (nông dân), tạo nền tảng chính trị vững chắc cho miền Bắc.</li>
+<li><strong>Phát triển kinh tế:</strong> Góp phần quan trọng vào công cuộc khôi phục kinh tế, giải quyết nạn đói và chuẩn bị cho kế hoạch phát triển dài hạn.</li>
+</ul>
+<h4>3. Bài học kinh nghiệm</h4>
+<p>Bên cạnh những thành tựu to lớn, cuộc cải cách cũng gặp phải những sai lầm trong quá trình thực hiện (như đấu tố quá đà, nhận diện sai đối tượng). Tuy nhiên, Đảng Lao động Việt Nam đã kịp thời nhìn nhận và tiến hành Hội nghị sửa sai (1956) để ổn định tình hình, củng cố lòng dân.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">NHỮNG CHUYỆN VỀ  CẢI CÁCH RUỘNG ĐẤT Ở MIỀN BẮC VIỆT NAM VÀ QUÁ TRÌNH SỬA SAI.</strong><a href="https://youtu.be/8je09c49FFI?si=39AWo6BfGtIDYQOS" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1956, date: '1956', title: 'Hội nghị Trung ương 10', location: 'Hà Nội', lat: 21.02, lng: 105.84,
+          details: ['Thừa nhận sai lầm trong cải cách ruộng đất', 'Tiến hành sửa sai, khôi phục lòng dân'],
+          result: 'Khôi phục lòng tin của nhân dân', type: 'north',
+          longContent: `<p>Hội nghị Trung ương 10 (Khóa II) diễn ra vào tháng 9/1954 là một trong những kỳ họp quan trọng nhất của Đảng Lao động Việt Nam, thể hiện sự dũng cảm nhìn thẳng vào sự thật để củng cố lại nền tảng xã hội sau những biến động của cuộc Cải cách ruộng đất.</p>
+<h4>1. Nội dung trọng tâm của Hội nghị</h4>
+<ul>
+<li><strong>Kiểm điểm sai lầm:</strong> Hội nghị đã phân tích sâu sắc những sai lầm nghiêm trọng trong cải cách ruộng đất và chỉnh đốn Đảng (như mở rộng diện đánh đổ quá mức, định sai thành phần địa chủ, vi phạm quyền dân chủ và tự do cá nhân).</li>
+<li><strong>Nghị quyết "Sửa sai":</strong> Đưa ra các biện pháp cụ thể để sửa chữa sai lầm, bao gồm:</li>
+</ul>
+<p>Trả lại thành phần cho những người bị quy sai.</p>
+<p>Phục hồi danh dự và chức vụ cho cán bộ, đảng viên bị xử lý oan.</p>
+<p>Giải quyết các vấn đề về tài sản, ruộng đất bị tịch thu nhầm.</p>
+<ul>
+<li><strong>Thay đổi nhân sự cao cấp:</strong> Tổng Bí thư Trường Chinh tự nguyện từ chức để nhận trách nhiệm (đồng chí Hồ Chí Minh tạm thời kiêm chức Tổng Bí thư).</li>
+</ul>
+<h4>2. Ý nghĩa và Hệ quả</h4>
+<ul>
+<li><strong>Khôi phục lòng tin:</strong> Việc công khai thừa nhận sai lầm trước nhân dân đã giúp xoa dịu những căng thẳng ở nông thôn, giúp người dân tin tưởng hơn vào sự lãnh đạo công minh của Đảng.</li>
+<li><strong>Ổn định tình hình miền Bắc:</strong> Nhờ sự chỉ đạo quyết liệt trong công tác sửa sai, trật tự xã hội dần được hồi phục, tạo điều kiện để miền Bắc tiếp tục kế hoạch phát triển kinh tế 3 năm (1955-1957).</li>
+<li><strong>Bài học về dân chủ:</strong> Đây là bài học đắt giá về việc tuân thủ các quy luật khách quan và tôn trọng quyền lợi của quần chúng trong quá trình thay đổi hình thái kinh tế - xã hội.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://vietnamnet.vn/tu-chuc-thoi-chuc-va-nhung-lan-sua-sai-thoi-chu-tich-ho-chi-minh-2105400.html</strong><a href="https://vietnamnet.vn/tu-chuc-thoi-chuc-va-nhung-lan-sua-sai-thoi-chu-tich-ho-chi-minh-2105400.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1957
+        {
+          year: 1957, date: '1957', title: 'Hoàn thành khôi phục kinh tế', location: 'Miền Bắc Việt Nam', lat: 20.8, lng: 106.0,
+          details: ['Hoàn thành cơ bản khôi phục kinh tế', 'Sản lượng nông nghiệp đạt mức trước chiến tranh', 'Ổn định đời sống nhân dân'],
+          result: 'Ổn định đời sống nhân dân', type: 'north',
+          longContent: `<p>Năm 1957 đánh dấu sự kết thúc thắng lợi của giai đoạn Khôi phục kinh tế (1955-1957) tại miền Bắc. Đây là bước đệm quan trọng để chuyển sang thời kỳ cải tạo xã hội chủ nghĩa và xây dựng cơ sở vật chất kỹ thuật sau này.</p>
+<h4>1. Thành tựu tiêu biểu trong năm 1957</h4>
+<ul>
+<li><strong>Nông nghiệp (Trọng tâm số 1):</strong> Sản lượng lương thực đạt mức xấp xỉ 4 triệu tấn, vượt xa mức cao nhất của năm 1939 (trước Chiến tranh thế giới thứ hai). Nông dân sau khi có ruộng đất từ Cải cách ruộng đất đã hăng hái sản xuất, giúp giải quyết căn bản nạn đói kinh niên.</li>
+<li><strong>Công nghiệp:</strong> Hầu hết các xí nghiệp, nhà máy quan trọng bị tàn phá trong chiến tranh (như Nhà máy dệt Nam Định, Nhà máy điện Yên Phụ, các mỏ than Quảng Ninh) đã được sửa chữa và đi vào hoạt động ổn định.</li>
+<li><strong>Giao thông vận tải:</strong> Khôi phục thành công các tuyến đường sắt huyết mạch (Hà Nội - Lạng Sơn, Hà Nội - Lào Cai, Hà Nội - Hải Phòng) và các tuyến đường bộ kết nối các vùng kinh tế.</li>
+<li><strong>Thương nghiệp:</strong> Hệ thống mậu dịch quốc doanh được hình thành, giúp nhà nước nắm giữ các mặt hàng thiết yếu, ổn định giá cả thị trường.</li>
+</ul>
+<h4>2. Ý nghĩa kinh tế - xã hội</h4>
+<ul>
+<li><strong>Ổn định đời sống:</strong> Thu nhập thực tế của người dân lao động tăng lên, tình trạng thất nghiệp ở thành thị giảm rõ rệt.</li>
+<li><strong>Cân bằng ngân sách:</strong> Nhà nước bắt đầu có tích lũy từ nội bộ nền kinh tế, giảm bớt sự phụ thuộc hoàn toàn vào viện trợ bên ngoài.</li>
+<li><strong>Chuẩn bị cho Kế hoạch 5 năm:</strong> Những thành tựu này tạo ra tiền đề vững chắc về vật chất để miền Bắc bước vào Kế hoạch phát triển kinh tế - xã hội 3 năm (1958-1960) và sau đó là Kế hoạch 5 năm lần thứ nhất.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://hungyen.dcs.vn/phan-8-khoi-phuc-kinh-te-hoan-thanh-cai-cach-ruong-dat-1954-1957-c2332.html#:~:text=%C4%90%E1%BA%BFn%20cu%E1%BB%91i%20n%C4%83m%201957%2C%20h%E1%BA%A7u,trong%20nh%E1%BB%AFng%20n%C4%83m%201958%2D1960.</strong><a href="https://hungyen.dcs.vn/phan-8-khoi-phuc-kinh-te-hoan-thanh-cai-cach-ruong-dat-1954-1957-c2332.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1958-1960
+        {
+          year: 1958, date: '1958–1960', title: 'Cải tạo xã hội chủ nghĩa', location: 'Miền Bắc Việt Nam', lat: 21.5, lng: 105.5,
+          details: ['Hợp tác hóa nông nghiệp', 'Cải tạo công thương nghiệp tư bản tư doanh', 'Hình thành nền kinh tế XHCN'],
+          result: 'Hình thành nền kinh tế XHCN bước đầu', type: 'north',
+          longContent: `<p>Giai đoạn 1958–1960 là thời kỳ miền Bắc thực hiện Kế hoạch 3 năm cải tạo xã hội chủ nghĩa, trọng tâm là thay đổi quan hệ sản xuất để xác lập nền tảng của nền kinh tế mới.</p>
+<h4>1. Nội dung cải tạo trọng tâm</h4>
+<ul>
+<li><strong>Hợp tác hóa nông nghiệp:</strong></li>
+</ul>
+<p>Vận động nông dân rời bỏ hình thức canh tác cá thể để gia nhập các Hợp tác xã (HTX).</p>
+<ul>
+<li><strong>Mục tiêu:</strong> Tập trung ruộng đất, sức lao động và công cụ sản xuất để canh tác quy mô lớn, áp dụng khoa học kỹ thuật (thủy lợi, phân bón).</li>
+<li><strong>Kết quả:</strong> Đến cuối năm 1960, khoảng 85% số hộ nông dân đã vào HTX nông nghiệp.</li>
+<li><strong>Cải tạo công thương nghiệp tư bản tư doanh:</strong></li>
+</ul>
+<p>Đối với các nhà tư bản dân tộc, Nhà nước thực hiện chính sách cải tạo hòa bình thông qua hình thức Công tư hợp doanh (Nhà nước và tư nhân cùng quản lý).</p>
+<p>Chuyển các hộ kinh doanh cá thể vào các tổ chức hợp tác hoặc chuyển sang sản xuất.</p>
+<ul>
+<li><strong>Phát triển kinh tế quốc doanh:</strong> * Xây dựng các nhà máy, xí nghiệp lớn thuộc sở hữu nhà nước để làm đầu tàu cho nền kinh tế.</li>
+</ul>
+<h4>2. Kết quả và Ý nghĩa</h4>
+<ul>
+<li><strong>Xác lập quan hệ sản xuất mới:</strong> Xóa bỏ chế độ chiếm hữu tư nhân về tư liệu sản xuất, thay thế bằng chế độ sở hữu toàn dân và sở hữu tập thể.</li>
+<li><strong>Hình thành nền kinh tế XHCN:</strong> Bước đầu xây dựng hệ thống quản lý kinh tế tập trung, tạo điều kiện để huy động nguồn lực cho cuộc kháng chiến chống Mỹ cứu nước sau này.</li>
+<li><strong>Thay đổi diện mạo nông thôn:</strong> Hệ thống mương phai, thủy lợi được xây dựng đồng bộ hơn nhờ sức mạnh tập thể của các xã viên hợp tác xã.</li>
+</ul>
+<h4>3. Hạn chế lịch sử</h4>
+<ul>
+<li><strong>Giai đoạn này cũng bộc lộ một số hạn chế như:</strong> tính chất nóng vội, gò ép nông dân vào HTX khi trình độ quản lý còn thấp, dẫn đến hiện tượng "dong công phóng điểm" (làm việc hời hợt) và hiệu quả sản xuất của một số HTX chưa cao.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://thinhvuongvietnam.com/Content/phong-trao-hop-tac-hoa-nong-nghiep-o-mien-bac-1958-1960-301510</strong><a href="https://thinhvuongvietnam.com/Content/phong-trao-hop-tac-hoa-nong-nghiep-o-mien-bac-1958-1960-301510" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1959
+        {
+          year: 1959, date: '1959', title: 'Nghị quyết 15', location: 'Hà Nội', lat: 21.03, lng: 105.85,
+          details: ['Cho phép sử dụng bạo lực cách mạng', 'Kết hợp đấu tranh chính trị và vũ trang', 'Chuyển hướng cách mạng miền Nam'],
+          result: 'Bước ngoặt trong cách mạng miền Nam', type: 'north',
+          longContent: `<p>Năm 1959 được coi là năm "bản lề" xoay chuyển cục diện của cách mạng miền Nam, từ thế giữ gìn lực lượng sang thế tiến công mạnh mẽ.</p>
+<h4>1. Nghị quyết 15 (tháng 1/1954 - ban hành chính thức năm 1959)</h4>
+<p>Sau nhiều năm đấu tranh chính trị đơn thuần bị chính quyền Ngô Đình Diệm đàn áp đẫm máu (đỉnh điểm là Luật 10/59), Hội nghị Trung ương lần thứ 15 đã ra quyết định lịch sử:</p>
+<ul>
+<li><strong>Chủ trương:</strong> Con đường phát triển cơ bản của cách mạng Việt Nam ở miền Nam là khởi nghĩa giành chính quyền về tay nhân dân.</li>
+<li><strong>Phương pháp:</strong> Sử dụng bạo lực cách mạng để đánh đổ ách thống trị của Mỹ - Diệm.</li>
+<li><strong>Hình thức:</strong> Kết hợp đấu tranh chính trị với đấu tranh vũ trang, lấy đấu tranh chính trị làm chủ yếu nhưng có lực lượng vũ trang hỗ trợ.</li>
+<li><strong>Ý nghĩa:</strong> Giải tỏa "cơn khát" của đồng bào miền Nam, soi sáng con đường giải phóng và dẫn đến cao trào Đồng khởi (1960).</li>
+</ul>
+<h4>2. Sự hình thành Đường Hồ Chí Minh (19/5/1959)</h4>
+<p>Để thực hiện Nghị quyết 15, việc chi viện từ hậu phương miền Bắc cho tiền tuyến miền Nam trở thành yêu cầu sống còn:</p>
+<ul>
+<li><strong>Đoàn 559:</strong> Được thành lập đúng ngày sinh nhật Bác (19/5) để mở đường trường sơn trên bộ.</li>
+<li><strong>Đoàn 759:</strong> Tiền thân của đường Hồ Chí Minh trên biển (tàu không số).</li>
+<li><strong>Vai trò:</strong> Đây không chỉ là một tuyến giao thông mà là một trận đồ bát quái xuyên rừng rậm, nơi vận chuyển vũ khí, lương thực và cán bộ, biến miền Nam thành chiến trường chia cắt kẻ thù.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Nghị quyết 15 soi sáng con đường giải phóng miền Nam</strong><a href="https://youtu.be/tBPXwyoKt9U?si=EvUBwFDo73efe9bE" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1959, date: '1959', title: 'Mở đường Hồ Chí Minh', location: 'Trường Sơn', lat: 16.5, lng: 106.5,
+          details: ['Xây dựng tuyến đường chi viện chiến lược', 'Nối liền Bắc – Nam qua dãy Trường Sơn'],
+          result: 'Tuyến chi viện chiến lược Bắc – Nam', type: 'north',
+          longContent: `<p>Năm 1959 được coi là năm "bản lề" xoay chuyển cục diện của cách mạng miền Nam, từ thế giữ gìn lực lượng sang thế tiến công mạnh mẽ.</p>
+<h4>1. Nghị quyết 15 (tháng 1/1954 - ban hành chính thức năm 1959)</h4>
+<p>Sau nhiều năm đấu tranh chính trị đơn thuần bị chính quyền Ngô Đình Diệm đàn áp đẫm máu (đỉnh điểm là Luật 10/59), Hội nghị Trung ương lần thứ 15 đã ra quyết định lịch sử:</p>
+<ul>
+<li><strong>Chủ trương:</strong> Con đường phát triển cơ bản của cách mạng Việt Nam ở miền Nam là khởi nghĩa giành chính quyền về tay nhân dân.</li>
+<li><strong>Phương pháp:</strong> Sử dụng bạo lực cách mạng để đánh đổ ách thống trị của Mỹ - Diệm.</li>
+<li><strong>Hình thức:</strong> Kết hợp đấu tranh chính trị với đấu tranh vũ trang, lấy đấu tranh chính trị làm chủ yếu nhưng có lực lượng vũ trang hỗ trợ.</li>
+<li><strong>Ý nghĩa:</strong> Giải tỏa "cơn khát" của đồng bào miền Nam, soi sáng con đường giải phóng và dẫn đến cao trào Đồng khởi (1960).</li>
+</ul>
+<h4>2. Sự hình thành Đường Hồ Chí Minh (19/5/1959)</h4>
+<p>Để thực hiện Nghị quyết 15, việc chi viện từ hậu phương miền Bắc cho tiền tuyến miền Nam trở thành yêu cầu sống còn:</p>
+<ul>
+<li><strong>Đoàn 559:</strong> Được thành lập đúng ngày sinh nhật Bác (19/5) để mở đường trường sơn trên bộ.</li>
+<li><strong>Đoàn 759:</strong> Tiền thân của đường Hồ Chí Minh trên biển (tàu không số).</li>
+<li><strong>Vai trò:</strong> Đây không chỉ là một tuyến giao thông mà là một trận đồ bát quái xuyên rừng rậm, nơi vận chuyển vũ khí, lương thực và cán bộ, biến miền Nam thành chiến trường chia cắt kẻ thù.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Nghị quyết 15 soi sáng con đường giải phóng miền Nam</strong><a href="https://youtu.be/tBPXwyoKt9U?si=EvUBwFDo73efe9bE" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1960
+        {
+          year: 1960, date: '17/1/1960', title: 'Phong trào Đồng Khởi – Bến Tre', location: 'Bến Tre', lat: 10.24, lng: 106.38,
+          details: ['Nhân dân nổi dậy phá tan chính quyền địch', 'Giải phóng nhiều vùng nông thôn'],
+          result: 'Chuyển cách mạng miền Nam sang thế tiến công', type: 'south',
+          longContent: `<p>Sự kiện Đồng khởi (17/1/1960) tại Bến Tre là ngọn súng lệnh mở đầu cho cao trào nổi dậy của quần chúng miền Nam, trực tiếp hiện thực hóa Nghị quyết 15 của Đảng vào đời sống chiến đấu.</p>
+<h4>1. Diễn biến tại "Quê hương Đồng khởi"</h4>
+<ul>
+<li><strong>Địa điểm:</strong> Bắt đầu tại 3 xã Định Thủy, Phước Hiệp, Bình Khánh thuộc huyện Mỏ Cày, tỉnh Bến Tre, sau đó lan rộng khắp tỉnh và toàn miền Nam.</li>
+<li><strong>Hình thức:</strong> Kết hợp giữa đấu tranh chính trị với đấu tranh vũ trang. Nhân dân sử dụng mọi vũ khí thô sơ (mỏ cày, gậy gộc, súng tự chế) phối hợp với các đơn vị vũ trang nhỏ để diệt ác ôn, phá thế kìm kẹp của địch.</li>
+<li><strong>Đội quân tóc dài:</strong> Hình ảnh những người phụ nữ Bến Tre biểu tình, đấu tranh trực diện với quân đội chính quyền Sài Gòn trở thành biểu tượng độc đáo của phong trào.</li>
+</ul>
+<h4>2. Kết quả và Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Phá vỡ bộ máy kìm kẹp:</strong> Tại Bến Tre và nhiều nơi ở Nam Bộ, Tây Nguyên, chính quyền cơ sở của địch bị tê liệt hoặc tan rã, chính quyền nhân dân tự quản được thành lập ở nhiều thôn, bản.</li>
+<li><strong>Chuyển thế cách mạng:</strong> Đưa cách mạng miền Nam từ thế giữ gìn lực lượng sang thế tiến công, làm lung lay tận gốc chế độ thực dân mới của Mỹ.</li>
+<li><strong>Sự ra đời của Mặt trận (20/12/1960):</strong> Thắng lợi của Đồng khởi là cơ sở thực tế để thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam, đoàn kết mọi tầng lớp nhân dân chống Mỹ - Diệm.</li>
+</ul>
+<h4>3. Tầm quan trọng đối với lý luận Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận của bạn, sự kiện này minh chứng cho quy luật: Khi mâu thuẫn giữa nhân dân và chính quyền phản động lên đến đỉnh điểm, sự nổi dậy của quần chúng là động lực trực tiếp thay đổi thực tại chính trị.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://nhandan.vn/phong-trao-dong-khoi-1960-buoc-ngoat-cua-cach-mang-mien-nam-post380528.html</strong><a href="https://nhandan.vn/phong-trao-dong-khoi-1960-buoc-ngoat-cua-cach-mang-mien-nam-post380528.html" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Phong trào Đồng Khởi - Bước ngoặt của cách mạng miền Nam | Phim tài liệu kháng chiến chống Mỹ</strong><a href="https://www.youtube.com/watch?v=qlUTb3Ain5A" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1960, date: '20/12/1960', title: 'Thành lập Mặt trận DTGPMNVN', location: 'Tây Ninh', lat: 11.34, lng: 106.1,
+          details: ['Thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam', 'Tập hợp lực lượng yêu nước rộng rãi'],
+          result: 'Tổ chức lãnh đạo phong trào cách mạng miền Nam', type: 'south',
+          longContent: `<p>Sự kiện thành lập Mặt trận Dân tộc Giải phóng miền Nam Việt Nam (20/12/1960) là kết quả tất yếu của phong trào Đồng Khởi, đánh dấu việc cách mạng miền Nam đã có một thực thể chính trị đại diện chính thức và thống nhất.</p>
+<h4>1. Bối cảnh và Sự thành lập</h4>
+<ul>
+<li><strong>Địa điểm:</strong> Tại xã Tân Lập, huyện Châu Thành (nay là huyện Tân Biên), tỉnh Tây Ninh.</li>
+<li><strong>Thành phần:</strong> Bao gồm đại biểu các tầng lớp nhân dân, các giai cấp, các dân tộc, các đảng phái, các đoàn thể, các tôn giáo ở miền Nam. Luật sư Nguyễn Hữu Thọ được bầu làm Chủ tịch.</li>
+<li><strong>Tuyên ngôn và Chương trình hành động:</strong> Mặt trận đề ra chương trình 10 điểm, với mục tiêu cốt lõi là: Đánh đổ chế độ thực dân mới của đế quốc Mỹ và chính quyền tay sai Ngô Đình Diệm, thành lập một chính quyền liên minh dân tộc dân chủ rộng rãi ở miền Nam, thực hiện một miền Nam Việt Nam độc lập, dân chủ, hòa bình, trung lập, tiến tới hòa bình thống nhất Tổ quốc.</li>
+</ul>
+<h4>2. Vai trò và Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Ngôi nhà chung của cách mạng:</strong> Mặt trận là tổ chức tập hợp rộng rãi nhất mọi lực lượng yêu nước ở miền Nam, không phân biệt xu hướng chính trị hay tôn giáo.</li>
+<li><strong>Lãnh đạo phong trào:</strong> Trở thành cơ quan lãnh đạo cao nhất của cách mạng miền Nam, điều hành các hoạt động từ quân sự, chính trị đến ngoại giao.</li>
+<li><strong>Vị thế quốc tế:</strong> Mặt trận đã thiết lập quan hệ và đặt cơ quan đại diện tại nhiều quốc gia, tranh thủ sự ủng hộ của bạn bè quốc tế đối với cuộc kháng chiến chính nghĩa của nhân dân Việt Nam.</li>
+<li><strong>Tiền thân của Chính phủ:</strong> Đây là nền tảng để sau này thành lập Chính phủ Cách mạng lâm thời Cộng hòa miền Nam Việt Nam (1969).</li>
+</ul>
+<h4>3. Tầm quan trọng đối với lý luận Cách mạng</h4>
+<p>Trong bài luận của bạn, sự ra đời của Mặt trận là minh chứng cho việc tổ chức hóa lực lượng quần chúng. Khi một hình thái kinh tế - xã hội cũ (thực dân mới) bị phản kháng, việc hình thành một "Nhà nước trong lòng địch" (thông qua Mặt trận) là bước chuẩn bị cho sự thay thế hoàn toàn về mặt chính trị.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-20-12-1960-mat-tran-dan-toc-giai-phong-mien-nam-viet-nam-chinh-thuc-duoc-thanh-lap-680654</strong><a href="https://www.qdnd.vn/tu-lieu-ho-so/ngay-nay-nam-xua/ngay-20-12-1960-mat-tran-dan-toc-giai-phong-mien-nam-viet-nam-chinh-thuc-duoc-thanh-lap-680654" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1960, date: '9/1960', title: 'Đại hội Đảng lần thứ III', location: 'Hà Nội', lat: 21.05, lng: 105.87,
+          details: ['Xác định hai nhiệm vụ chiến lược', 'Miền Bắc: xây dựng CNXH', 'Miền Nam: đấu tranh giải phóng'],
+          result: 'Hoàn chỉnh đường lối cách mạng', type: 'north',
+          longContent: `<p>Đại hội đại biểu toàn quốc lần thứ III của Đảng (tháng 9/1960) được Chủ tịch Hồ Chí Minh gọi là "Đại hội xây dựng Chủ nghĩa xã hội ở miền Bắc và đấu tranh hòa bình thống nhất nước nhà". Đây là sự kiện hoàn thiện hệ thống lý luận cách mạng cho cả hai miền trong tình hình mới.</p>
+<h4>1. Nội dung chiến lược của Đại hội</h4>
+<p>Đại hội đã xác định nhiệm vụ chiến lược cho cách mạng mỗi miền và mối quan hệ giữa hai nhiệm vụ đó:</p>
+<ul>
+<li><strong>Cách mạng miền Bắc:</strong> Có nhiệm vụ xây dựng Chủ nghĩa xã hội (CNXH). Đây là nhiệm vụ quyết định nhất đối với sự phát triển của toàn bộ cách mạng Việt Nam và sự nghiệp thống nhất nước nhà.</li>
+<li><strong>Cách mạng miền Nam:</strong> Có nhiệm vụ tiếp tục cuộc Cách mạng dân tộc dân chủ nhân dân, đánh đổ ách thống trị của đế quốc Mỹ và tay sai, giải phóng miền Nam, thực hiện thống nhất đất nước.</li>
+<li><strong>Mối quan hệ:</strong> Hai nhiệm vụ chiến lược có quan hệ mật thiết, tác động lẫn nhau nhằm mục tiêu chung là độc lập và thống nhất. Miền Bắc là hậu phương lớn, miền Nam là tiền tuyến lớn.</li>
+</ul>
+<h4>2. Các mục tiêu cụ thể</h4>
+<ul>
+<li><strong>Kế hoạch 5 năm lần thứ nhất (1961-1965):</strong> Đại hội thông qua đường lối công nghiệp hóa xã hội chủ nghĩa, ưu tiên phát triển công nghiệp nặng một cách hợp lý, đồng thời ra sức phát triển nông nghiệp và công nghiệp nhẹ.</li>
+<li><strong>Củng cố Đảng:</strong> Bầu Ban Chấp hành Trung ương mới, đồng chí Lê Duẩn được bầu làm Bí thư Thứ nhất Ban Chấp hành Trung ương Đảng.</li>
+</ul>
+<h4>3. Ý nghĩa lịch sử</h4>
+<ul>
+<li><strong>Hoàn chỉnh đường lối:</strong> Lần đầu tiên Đảng ta xác định một cách khoa học và đầy đủ con đường đi lên của cách mạng Việt Nam trong điều kiện đất nước bị chia cắt.</li>
+<li><strong>Nguồn sức mạnh:</strong> Tạo ra sự thống nhất ý chí và hành động trong toàn Đảng, toàn quân và toàn dân, huy động tối đa sức mạnh của hậu phương miền Bắc cho cuộc kháng chiến ở miền Nam.</li>
+<li><strong>Tầm nhìn dài hạn:</strong> Đặt nền móng cho việc xây dựng cơ cấu kinh tế công - nông nghiệp ở miền Bắc, tạo tiềm lực vật chất cho cuộc đối đầu dài hơi với đế quốc Mỹ.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/chinh-tri/cac-van-de/cac-ky-dai-hoi-cua-dang-va-nhung-dau-an-lich-su-dai-hoi-lan-thu-iii-xay-dung-chu-nghia-xa-hoi-o-mien-bac-dau-tranh-thong-nhat-nuoc-nha-813648</strong><a href="https://www.qdnd.vn/chinh-tri/cac-van-de/cac-ky-dai-hoi-cua-dang-va-nhung-dau-an-lich-su-dai-hoi-lan-thu-iii-xay-dung-chu-nghia-xa-hoi-o-mien-bac-dau-tranh-thong-nhat-nuoc-nha-813648" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1961
+        {
+          year: 1961, date: '1961', title: 'Chiến lược "Chiến tranh đặc biệt"', location: 'Sài Gòn', lat: 10.80, lng: 106.72,
+          details: ['Mỹ dùng quân đội Sài Gòn làm nòng cốt', 'Có cố vấn và vũ khí Mỹ hỗ trợ', 'Tăng cường chiến tranh xâm lược'],
+          result: 'Tăng cường chiến tranh xâm lược ở miền Nam', type: 'south',
+          longContent: `<p>Năm 1961 là thời điểm khởi đầu cho cuộc đối đầu trực diện và quyết liệt hơn giữa cách mạng Việt Nam và đế quốc Mỹ với những bước chuyển mình quan trọng về cả quân sự, chính trị và kinh tế.</p>
+<h4>1. Mỹ thực hiện chiến lược "Chiến tranh đặc biệt"</h4>
+<p>Sau thất bại của hình thức thực dân cũ, Mỹ chuyển sang "Chiến tranh đặc biệt" - một loại hình chiến tranh xâm lược thực dân mới:</p>
+<ul>
+<li><strong>Công thức:</strong> Quân đội Sài Gòn + Vũ khí, trang bị, cố vấn Mỹ.</li>
+<li><strong>Biện pháp then chốt:</strong> "Bình định" miền Nam thông qua việc lập Ấp chiến lược nhằm tách dân khỏi cách mạng (với khẩu hiệu "Tát nước bắt cá").</li>
+<li><strong>Chiến thuật mới:</strong> Sử dụng "Trực thăng vận" và "Thiết xa vận" để tạo ưu thế cơ động và hỏa lực bất ngờ.</li>
+</ul>
+<h4>2. Tăng cường lãnh đạo và Lực lượng Cách mạng miền Nam</h4>
+<p>Để đối phó với sự leo thang của Mỹ, bộ máy lãnh đạo và lực lượng vũ trang tại miền Nam được kiện toàn:</p>
+<ul>
+<li><strong>Trung ương Cục miền Nam (tháng 10/1961):</strong> Thay thế Xứ ủy Nam Bộ, là bộ phận của Ban Chấp hành Trung ương Đảng đặt tại miền Nam để trực tiếp lãnh đạo cuộc kháng chiến.</li>
+<li><strong>Quân Giải phóng miền Nam Việt Nam (15/2/1961):</strong> Thống nhất các lực lượng vũ trang tại miền Nam thành một quân đội chính quy dưới sự lãnh đạo của Đảng và Mặt trận Dân tộc Giải phóng.</li>
+<li><strong>Ý nghĩa:</strong> Tạo ra sự chỉ đạo tập trung, thống nhất và sức mạnh quân sự đủ lớn để bẻ gãy các cuộc hành quân càn quét của địch.</li>
+</ul>
+<h4>3. Miền Bắc bắt đầu Kế hoạch 5 năm lần thứ nhất (1961–1965)</h4>
+<p>Song song với cuộc đấu tranh ở miền Nam, miền Bắc bắt đầu xây dựng cơ sở vật chất - kỹ thuật cho Chủ nghĩa Xã hội:</p>
+<ul>
+<li><strong>Mục tiêu:</strong> Bước đầu xây dựng nền tảng công nghiệp nặng, phát triển nông nghiệp và công nghiệp nhẹ, nâng cao đời sống nhân dân.</li>
+<li><strong>Thành tựu tiêu biểu:</strong> Nhiều "con chim đầu đàn" của nền công nghiệp ra đời như: Khu gang thép Thái Nguyên, Thủy điện Thác Bà, Dệt 8-3...</li>
+<li><strong>Vai trò:</strong> Xây dựng miền Bắc thành hậu phương lớn, sẵn sàng chi viện sức người, sức của cho tiền tuyến miền Nam "đánh cho Mỹ cút, đánh cho Ngụy nhào".</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://chinhphu.vn/giai-doan-1955-1975-xay-dung-cnxh-va-dau-tranh-thong-nhat-dat-nuoc/2-danh-thang-chien-luoc-chien-tranh-dac-biet-cua-my-1961-1965-10001594</strong><a href="https://chinhphu.vn/giai-doan-1955-1975-xay-dung-cnxh-va-dau-tranh-thong-nhat-dat-nuoc/2-danh-thang-chien-luoc-chien-tranh-dac-biet-cua-my-1961-1965-10001594" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1961, date: '1961', title: 'Kế hoạch 5 năm lần I (1961–1965)', location: 'Hà Nội', lat: 21.02, lng: 105.82,
+          details: ['Đẩy mạnh xây dựng cơ sở vật chất CNXH', 'Phát triển công nghiệp, nông nghiệp'],
+          result: 'Đẩy mạnh xây dựng CNXH ở miền Bắc', type: 'north'
+        },
+        {
+          year: 1961, date: '1961', title: 'Thành lập Trung ương Cục & Quân GPMNVN', location: 'Tây Nguyên', lat: 13.8, lng: 108.1,
+          details: ['Thành lập Trung ương Cục miền Nam', 'Thành lập Quân Giải phóng miền Nam Việt Nam'],
+          result: 'Tăng cường lãnh đạo và lực lượng vũ trang miền Nam', type: 'south'
+        },
+
+        // 1962
+        {
+          year: 1962, date: '1962', title: 'Chiến tranh hóa học & Ấp chiến lược', location: 'Đồng bằng sông Cửu Long', lat: 10.1, lng: 105.8,
+          details: ['Mỹ–Diệm lập hàng nghìn ấp chiến lược', 'Rải chất độc hóa học (chất độc da cam)', 'Tàn phá môi trường và đời sống nhân dân'],
+          result: 'Tàn phá môi trường và đời sống nhân dân', type: 'south',
+          longContent: `<p>Năm 1962 là giai đoạn Mỹ đẩy mạnh chiến lược "Chiến tranh đặc biệt" lên mức độ tàn khốc nhất, với hai "vũ khí" chính là dồn dân vào Ấp chiến lược và bắt đầu sử dụng vũ khí hóa học quy mô lớn.</p>
+<h4>1. Quốc sách "Ấp chiến lược"</h4>
+<p>Mỹ và chính quyền Ngô Đình Diệm coi đây là "xương sống" của Chiến tranh đặc biệt, nhằm mục đích "tát nước bắt cá", tách rời nhân dân khỏi các lực lượng cách mạng.</p>
+<ul>
+<li><strong>Mục tiêu:</strong> Dồn hơn 10 triệu nông dân vào 16.000 ấp tính đến hết năm 1962.</li>
+<li><strong>Thực trạng:</strong> Thực chất đây là những trại tập trung khổng lồ được bao quanh bởi rào gai, hào sâu và canh gác nghiêm ngặt. Địch cưỡng bức dân dời nhà cửa, mồ mả tổ tiên để vào ấp, gây nên sự xáo trộn kinh hoàng về đời sống và tâm lý xã hội.</li>
+<li><strong>Sự phản kháng:</strong> Nhân dân miền Nam đã biến các Ấp chiến lược thành "Ấp chiến đấu", phá thế kìm kẹp từ bên trong, khiến kế hoạch này dần phá sản.</li>
+</ul>
+<h4>2. Sự khởi đầu của Chiến tranh hóa học (Chất độc da cam/Dioxin)</h4>
+<p>Tháng 1/1962, Mỹ bắt đầu thực hiện chiến dịch Ranch Hand, rải chất độc hóa học xuống các vùng giải phóng và dọc các tuyến đường mòn.</p>
+<ul>
+<li><strong>Mục tiêu quân sự:</strong> Làm rụng lá cây rừng để triệt tiêu nơi ẩn náu của quân giải phóng và phá hoại mùa màng, cắt đứt nguồn lương thực tại chỗ.</li>
+<li><strong>Hậu quả hủy diệt:</strong> * Môi trường: Hệ sinh thái rừng nhiệt đới bị hủy diệt trên diện rộng, nhiều vùng đất trở thành "vùng đất chết" không thể canh tác trong hàng thập kỷ.</li>
+<li><strong>Con người:</strong> Gây ra những căn bệnh nan y và dị dạng bẩm sinh cho nhiều thế hệ (hàng triệu nạn nhân chất độc da cam). Đây là một trong những tội ác chiến tranh tàn bạo nhất trong lịch sử nhân loại.</li>
+</ul>
+<h4>3. Tầm quan trọng đối với lý luận Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận 30 trang của bạn, sự kiện này là minh chứng cho việc sử dụng bạo lực phi nghĩa để cưỡng chế thay đổi cấu trúc xã hội (nông thôn). Việc dồn dân vào ấp là nỗ lực tuyệt vọng nhằm phá vỡ hình thái kinh tế - chính trị truyền thống của làng quê Việt Nam để phục vụ mục tiêu xâm lược.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baotintuc.vn/van-hoa/trien-lam-anh-60-nam-tham-hoa-da-cam-viet-namnoi-dau-con-donhan-chung-lich-su-20210727164229148.htm</strong><a href="https://baotintuc.vn/van-hoa/trien-lam-anh-60-nam-tham-hoa-da-cam-viet-namnoi-dau-con-donhan-chung-lich-su-20210727164229148.htm" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">Đập tan kế hoạch ấp chiến lược</strong><a href="https://www.youtube.com/watch?v=NmJY-Xgwkeo" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+
+        // 1963
+        {
+          year: 1963, date: '2/1/1963', title: 'Chiến thắng Ấp Bắc', location: 'Ấp Bắc – Mỹ Tho', lat: 10.52, lng: 106.22,
+          details: ['Đánh bại cuộc càn quét lớn của quân Sài Gòn', 'Tiêu diệt nhiều sinh lực địch và cố vấn Mỹ'],
+          result: 'Khẳng định khả năng thắng Mỹ – Diệm', type: 'south',
+          longContent: `<p>Năm 1963 là năm chứng kiến sự sụp đổ dây chuyền của các chiến thuật quân sự và sự khủng hoảng trầm trọng về chính trị của chế độ thực dân mới tại miền Nam.</p>
+<h4>1. Chiến thắng Ấp Bắc (2/1/1963)</h4>
+<p>Trận đánh diễn ra tại xã Tân Phú (Mỹ Tho, nay là Tiền Giang), nơi một đơn vị nhỏ của Quân Giải phóng đã đối đầu với lực lượng quân đội Sài Gòn đông gấp 10 lần, có máy bay và xe lội nước hỗ trợ.</p>
+<ul>
+<li><strong>Kết quả:</strong> Quân Giải phóng đánh bại cuộc càn quét, bắn rơi nhiều máy bay trực thăng và phá hủy xe bọc thép M113.</li>
+<li><strong>Ý nghĩa:</strong> * Phá sản bước đầu các chiến thuật "Trực thăng vận" và "Thiết xa vận" của Mỹ.</li>
+<li><strong>Chứng minh khả năng thắng Mỹ:</strong> Khẳng định quân và dân miền Nam hoàn toàn có thể đánh thắng quân đội Sài Gòn dù có cố vấn và vũ khí hiện đại của Mỹ hỗ trợ.</li>
+</ul>
+<p>Dấy lên phong trào "Thi đua Ấp Bắc, giết giặc lập công" trên khắp miền Nam.</p>
+<h4>2. Cuộc đảo chính Ngô Đình Diệm (1/11/1963)</h4>
+<p>Sự bất lực trong việc dập tắt phong trào cách mạng và cuộc khủng hoảng Phật giáo đã khiến Mỹ quyết định thay ngựa giữa dòng.</p>
+<ul>
+<li><strong>Diễn biến:</strong> Các tướng lĩnh quân đội Sài Gòn do Dương Văn Minh cầm đầu, dưới sự đạo diễn của Mỹ, đã thực hiện cuộc đảo chính lật đổ và ám sát anh em Ngô Đình Diệm - Ngô Đình Nhu.</li>
+<li><strong>Hậu quả đối với địch:</strong> * Khủng hoảng nghiêm trọng: Chính quyền Sài Gòn rơi vào tình trạng mất ổn định kéo dài với hàng loạt cuộc "chỉnh lý", đảo chính liên tiếp sau đó.</li>
+</ul>
+<p>Hệ thống "Ấp chiến lược" bị lung lay và tan rã từng mảng lớn do bộ máy kìm kẹp ở cơ sở bị tê liệt.</p>
+<ul>
+<li><strong>Cơ hội cho cách mạng:</strong> Lực lượng cách mạng tận dụng thời cơ chính trị này để đẩy mạnh đấu tranh phá ấp, mở rộng vùng giải phóng.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://www.qdnd.vn/quoc-phong-an-ninh/nghe-thuat-quan-su-vn/chien-thang-ap-bac-buoc-truong-thanh-cua-quan-giai-phong-mien-nam-viet-nam-715093</strong><a href="https://www.qdnd.vn/quoc-phong-an-ninh/nghe-thuat-quan-su-vn/chien-thang-ap-bac-buoc-truong-thanh-cua-quan-giai-phong-mien-nam-viet-nam-715093" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1963, date: '1/11/1963', title: 'Đảo chính lật đổ Ngô Đình Diệm', location: 'Sài Gòn', lat: 10.78, lng: 106.69,
+          details: ['Nội bộ chính quyền Sài Gòn mâu thuẫn sâu sắc', 'Nhóm tướng lĩnh đảo chính, Ngô Đình Diệm bị giết'],
+          result: 'Chính quyền Sài Gòn khủng hoảng nghiêm trọng', type: 'south'
+        },
+
+        // 1964
+        {
+          year: 1964, date: '1964', title: 'Chiến thắng Bình Giã', location: 'Bình Giã – Bà Rịa', lat: 10.62, lng: 107.28,
+          details: ['Tiêu diệt nhiều sinh lực địch', 'Nâng cao thế và lực của cách mạng'],
+          result: 'Nâng cao thế và lực của cách mạng', type: 'south',
+          longContent: `<p>Năm 1964 là giai đoạn bản lề khi Mỹ đứng trước sự phá sản hoàn toàn của chiến lược "Chiến tranh đặc biệt", dẫn đến những quyết định leo thang quân sự mạo hiểm và khốc liệt hơn.</p>
+<h4>1. Chiến thắng Bình Giã (Bà Rịa - Vũng Tàu)</h4>
+<p>Trận Bình Giã (diễn ra từ tháng 12/1964 đến tháng 1/1965) là một đòn giáng mạnh mẽ vào quân đội Sài Gòn và cố vấn Mỹ.</p>
+<ul>
+<li><strong>Quy mô:</strong> Đây là lần đầu tiên Quân Giải phóng miền Nam tiến hành một chiến dịch đánh vận động quy mô cấp trung đoàn, tiêu diệt gọn nhiều tiểu đoàn quân chủ lực tinh nhuệ của địch (biệt động quân, dù) ngay tại vùng cửa ngõ Sài Gòn.</li>
+<li><strong>Ý nghĩa quân sự:</strong> Đánh dấu sự trưởng thành vượt bậc của bộ đội chủ lực miền Nam. Chiến thắng này chứng minh quân ta đã có đủ khả năng đánh tiêu diệt các đơn vị lớn của địch có sự hỗ trợ tối đa của không quân và thiết giáp Mỹ.</li>
+<li><strong>Hệ quả chính trị:</strong> Làm lung lay ý chí của giới cầm quyền Mỹ, báo hiệu sự phá sản không thể đảo ngược của chiến lược "dùng người Việt đánh người Việt".</li>
+</ul>
+<h4>2. Mỹ leo thang chiến tranh</h4>
+<p>Trước nguy cơ sụp đổ của chính quyền Sài Gòn, Mỹ bắt đầu thực hiện các bước đi nhằm trực tiếp can thiệp sâu hơn:</p>
+<ul>
+<li><strong>Tăng cường viện trợ:</strong> Đổ thêm hàng tỷ USD vũ khí, phương tiện chiến tranh và tăng số lượng cố vấn quân sự lên mức kỷ lục (khoảng 23.000 người vào cuối năm 1964).</li>
+<li><strong>Sự kiện Vịnh Bắc Bộ (8/1964):</strong> Mỹ dựng lên sự kiện tàu tuần tiễu của Việt Nam tấn công tàu chiến Mỹ để lấy cớ ném bom miền Bắc. Đây là bước dọn đường cho chiến dịch không kích dài ngày vào hậu phương lớn.</li>
+<li><strong>Chuẩn bị chuyển sang "Chiến tranh cục bộ":</strong> Các kế hoạch đưa quân chiến đấu Mỹ trực tiếp tham chiến bắt đầu được thảo luận ráo riết tại Washington.</li>
+</ul>
+<h4>3. Tầm quan trọng đối với Hình thái kinh tế - xã hội</h4>
+<p>Trong bài luận của bạn, giai đoạn này minh chứng cho quy luật: Khi một lực lượng chính trị (đế quốc Mỹ) không còn kiểm soát được tình hình thông qua các cấu trúc gián tiếp (chính quyền tay sai), họ buộc phải sử dụng bạo lực trực tiếp (quân đội viễn chinh) để duy trì hình thái thống trị. Điều này làm thay đổi tính chất cuộc chiến từ "đặc biệt" sang "cục bộ", kéo theo sự thay đổi về phương thức sản xuất và sinh hoạt của cả hai miền để thích ứng với điều kiện chiến tranh phá hoại.</p>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">https://baodongnai.com.vn/chinh-tri/202412/ky-niem-60-nam-chien-thang-binh-gia-2-12-moc-son-choi-loi-trong-lich-su-khang-chien-chong-de-quoc-my-a3751aa/</strong><a href="https://baodongnai.com.vn/chinh-tri/202412/ky-niem-60-nam-chien-thang-binh-gia-2-12-moc-son-choi-loi-trong-lich-su-khang-chien-chong-de-quoc-my-a3751aa/" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">CHIẾN DỊCH BÌNH GIÃ, SỨC MẠNH CỦA THẾ TRẬN CHIẾN TRANH NHÂN DÂN</strong><a href="https://www.youtube.com/watch?v=ntbXGEt3BZQ" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1964, date: '1964', title: 'Mỹ leo thang chiến tranh', location: 'Vịnh Bắc Bộ', lat: 18.5, lng: 107.5,
+          details: ['Sự kiện Vịnh Bắc Bộ (giả tạo)', 'Mỹ tăng cường viện trợ quân sự cho Sài Gòn'],
+          result: 'Chuẩn bị leo thang chiến tranh ra miền Bắc', type: 'north'
+        },
+
+        // 1965
+        {
+          year: 1965, date: '1965', title: 'Chiến thắng Ba Gia & Đồng Xoài', location: 'Quảng Ngãi & Bình Phước', lat: 14.5, lng: 108.2,
+          details: ['Chiến thắng Ba Gia (Quảng Ngãi)', 'Chiến thắng Đồng Xoài (Bình Phước)', 'Làm suy yếu nghiêm trọng quân đội Sài Gòn'],
+          result: 'Làm suy yếu quân đội Sài Gòn', type: 'south',
+          longContent: `<p>Năm 1965 là năm chứng kiến sự phá sản hoàn toàn của chiến lược "Chiến tranh đặc biệt" sau những đòn đánh quyết định của Quân Giải phóng, buộc đế quốc Mỹ phải thay đổi toàn bộ tính chất cuộc chiến.</p>
+<h4>1. Các chiến thắng quân sự vang dội</h4>
+<p>Hai chiến thắng Ba Gia và Đồng Xoài là những "nhát dao" cuối cùng chặt đứt xương sống của quân đội Sài Gòn trong giai đoạn này:</p>
+<ul>
+<li><strong>Chiến thắng Ba Gia (Quảng Ngãi - tháng 5/1965):</strong></li>
+</ul>
+<p>Quân Giải phóng tiêu diệt gọn chiến đoàn hỗn hợp tinh nhuệ của địch.</p>
+<ul>
+<li><strong>Ý nghĩa:</strong> Khẳng định bộ đội chủ lực của ta đã có bước tiến vượt bậc về trình độ đánh tập trung, tiêu diệt sinh lực địch ở quy mô lớn trên địa bàn rừng núi.</li>
+<li><strong>Chiến thắng Đồng Xoài (Bình Phước - tháng 6/1965):</strong></li>
+</ul>
+<p>Đánh tan nhiều tiểu đoàn biệt động quân và dù của địch, phá hủy hệ thống đồn bốt tại một vị trí chiến lược cửa ngõ Sài Gòn.</p>
+<ul>
+<li><strong>Ý nghĩa:</strong> Đẩy quân đội Sài Gòn vào tình trạng suy sụp ý chí chiến đấu, không còn khả năng tự đứng vững nếu không có sự can thiệp trực tiếp của quân Mỹ.</li>
+</ul>
+<h4>2. Sự phá sản của "Chiến tranh đặc biệt"</h4>
+<p>Sự thất bại của chiến lược này được đánh dấu bởi ba yếu tố:</p>
+<ul>
+<li><strong>Quân đội Sài Gòn:</strong> Mất khả năng tác chiến chủ động, liên tục bị tiêu diệt các đơn vị cấp chiến đoàn, trung đoàn.</li>
+<li><strong>Ấp chiến lược:</strong> Phần lớn hệ thống này đã bị nhân dân nổi dậy phá tan, vùng giải phóng được mở rộng và củng cố.</li>
+<li><strong>Chính quyền Sài Gòn:</strong> Khủng hoảng chính trị liên miên, các cuộc đảo chính và chỉnh lý làm tê liệt bộ máy điều hành.</li>
+</ul>
+<h4>3. Bước ngoặt: Mỹ leo thang chiến tranh</h4>
+<p>Đứng trước nguy cơ thất bại hoàn toàn, Mỹ đã đưa ra những quyết định mang tính "đánh canh bạc lớn":</p>
+<ul>
+<li><strong>Đổ quân viễn chinh:</strong> Tháng 3/1965, tiểu đoàn Thủy quân lục chiến Mỹ đầu tiên đổ bộ vào Đà Nẵng, mở đầu cho việc đưa quân chiến đấu Mỹ trực tiếp tham chiến.</li>
+<li><strong>Chiến tranh phá hoại miền Bắc:</strong> Mỹ chính thức phát động cuộc chiến tranh bằng không quân và hải quân phá hoại miền Bắc (Chiến dịch Sấm Rền) nhằm ngăn chặn chi viện và phá hủy tiềm lực hậu phương.</li>
+<li><strong>Chiến lược mới:</strong> Chuyển sang "Chiến tranh cục bộ", trực tiếp đối đầu với quân giải phóng bằng sức mạnh quân sự khổng lồ của Mỹ.</li>
+</ul>
+<div style="margin-top:20px; text-align:center;"><strong style="display:block; margin-bottom:10px;">TOÀN CẢNH DIỄN BIẾN TRẬN ĐỒNG XOÀI TRONG CHIẾN TRANH VIỆT NAM.</strong><a href="https://www.youtube.com/watch?v=VHI2ewK-Dik" target="_blank" style="display:inline-block; margin-top:8px; padding:10px 20px; background:#c0392b; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.3); transition:background 0.2s;">▶ Bấm vào đây để xem</a></div>`
+        },
+        {
+          year: 1965, date: '1965', title: 'Chiến lược "Chiến tranh đặc biệt" thất bại', location: 'Sài Gòn', lat: 10.75, lng: 106.68,
+          details: ['Sau 4 năm, chiến lược hoàn toàn thất bại', 'Mỹ buộc phải đổi sang chiến lược "Chiến tranh cục bộ"', 'Đưa quân chiến đấu Mỹ vào trực tiếp tham chiến'],
+          result: 'Mỹ chuyển sang chiến lược chiến tranh mới', type: 'south'
+        },
+      ];
+
+      // ─────────────────────────────────────────
+      //  YEAR LIST
+      // ─────────────────────────────────────────
+      const YEARS = [1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965];
+
+      // ─────────────────────────────────────────
+      //  MAP INIT
+      // ─────────────────────────────────────────
+      const map = L.map('map', { zoomControl: false }).setView([16.5, 106.5], 6);
+      L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO & OpenStreetMap',
+        subdomains: 'abcd', maxZoom: 19
+      }).addTo(map);
+
+      // Vĩ tuyến 17
+      const dmz = L.polyline([[17.015, 105.5], [17.015, 108.5]], {
+        color: '#111', weight: 3, dashArray: '9,6', opacity: 0.9
+      }).addTo(map);
+      dmz.bindPopup("<span class='popup-title'>Vĩ tuyến 17 (17°N)</span><span class='popup-detail'>Theo Hiệp định Genève 1954, sông Bến Hải – cầu Hiền Lương là giới tuyến quân sự tạm thời chia cắt hai miền.</span>");
+
+      // GeoJSON provinces
+      const geojsonUrl = 'https://raw.githubusercontent.com/TungTh/tungth.github.io/master/data/vn-provinces.json';
+      fetch(geojsonUrl)
+        .then(r => r.json())
+        .then(data => {
+          L.geoJSON(data, {
+            style: f => {
+              const bounds = L.geoJSON(f).getBounds();
+              const isNorth = bounds.getCenter().lat > 17.015;
+              return { fillColor: isNorth ? '#c0392b' : '#d4a017', weight: 0, color: 'transparent', fillOpacity: 0.55 };
+            },
+            onEachFeature: (f, layer) => {
+              const bounds = layer.getBounds();
+              const isNorth = bounds.getCenter().lat > 17.015;
+              const name = f.properties.Name || f.properties.Ten_Tinh || 'Tỉnh';
+              const region = isNorth ? 'Bắc Việt Nam (VNDCCH)' : 'Nam Việt Nam (VNCH)';
+              layer.bindPopup(`<span class='popup-title'>${name}</span><span class='popup-detail'>Khu vực: <b>${region}</b></span>`);
+              layer.on({
+                mouseover: e => { e.target.setStyle({ weight: 2, color: '#444', fillOpacity: 0.8 }); dmz.bringToFront(); },
+                mouseout: e => { e.target.setStyle({ weight: 0, color: 'transparent', fillOpacity: 0.55 }); }
+              });
+            }
+          }).addTo(map);
+        })
+        .catch(() => console.warn('GeoJSON load failed'));
+
+      // ─────────────────────────────────────────
+      //  MARKERS
+      // ─────────────────────────────────────────
+      let currentMarkers = [];
+      let activeCard = null;
+
+      function clearMarkers() {
+        currentMarkers.forEach(m => map.removeLayer(m));
+        currentMarkers = [];
+      }
+
+      function createMarkerIcon(type) {
+        const el = document.createElement('div');
+        el.className = 'ev-marker';
+        el.innerHTML = `<div class="ev-marker-inner ${type === 'south' ? 'gold' : ''}"></div>`;
+        return L.divIcon({ html: el, className: '', iconSize: [32, 32], iconAnchor: [16, 16] });
+      }
+
+      window.EVENTS_DATA = EVENTS;
+      EVENTS.forEach((ev, i) => ev.id = i);
+
+      function popupHTML(ev) {
+        const detailsHTML = ev.details ? ev.details.map(d => `<div class='popup-detail'>• ${d}</div>`).join('') : '';
+        return `
+    <span class='popup-date'>${ev.date}</span>
+    <span class='popup-title'>${ev.title}</span>
+    <div class='popup-detail'>📍 ${ev.location}</div>
+    ${detailsHTML}
+    ${ev.result ? `<div class='popup-result'>→ ${ev.result}</div>` : ''}
+    <div><span class='popup-btn' onclick='window.openModal(${ev.id})'>Xem thêm chi tiết</span></div>
+  `;
+      }
+
+      window.openModal = function (idx) {
+        const ev = window.EVENTS_DATA[idx];
+        document.getElementById('modal-title').textContent = ev.title;
+        document.getElementById('modal-date').textContent = "📅 " + ev.date;
+        document.getElementById('modal-loc').textContent = "📍 " + ev.location;
+
+        const resultEl = document.getElementById('modal-result');
+        if (ev.longContent) {
+          document.getElementById('modal-details').innerHTML = ev.longContent;
+          resultEl.style.display = 'none';
+        } else {
+          const detailsHTML = ev.details ? "<ul>" + ev.details.map(d => `<li>${d}</li>`).join('') + "</ul>" : "";
+          document.getElementById('modal-details').innerHTML = detailsHTML;
+          if (ev.result) {
+            resultEl.innerHTML = "<strong>Kết quả/Ý nghĩa:</strong> " + ev.result;
+            resultEl.style.display = 'block';
+          } else {
+            resultEl.style.display = 'none';
+          }
+        }
+
+        document.getElementById('event-modal').classList.add('active');
+      };
+
+      window.closeModal = function () {
+        document.getElementById('event-modal').classList.remove('active');
+      };
+
+      // Close modal on click outside
+      document.getElementById('event-modal').addEventListener('click', function (e) {
+        if (e.target === this) {
+          closeModal();
+        }
+      });
+
+      function showEventsForYear(year) {
+        clearMarkers();
+
+        const evs = EVENTS.filter(e => e.year === year || (e.year === year - 1 && year === 1956));
+        // also include multi-year ranges
+        const allEvs = EVENTS.filter(e => e.year <= year && e.year >= (year === 1958 ? 1958 : year) ||
+          (year >= 1958 && year <= 1960 && e.year === 1958));
+
+        const filtered = EVENTS.filter(e => e.year === year);
+
+        // render markers
+        filtered.forEach(ev => {
+          const icon = createMarkerIcon(ev.type);
+          const marker = L.marker([ev.lat, ev.lng], { icon });
+          marker.bindPopup(popupHTML(ev), { maxWidth: 300 });
+          marker.addTo(map);
+          currentMarkers.push(marker);
+        });
+
+        // fit map to markers
+        if (currentMarkers.length > 0) {
+          const group = L.featureGroup(currentMarkers);
+          try {
+            map.fitBounds(group.getBounds().pad(0.3), { maxZoom: 9, animate: true, duration: 0.8 });
+          } catch (e) { }
+        }
+      }
+
+      // ─────────────────────────────────────────
+      //  TIMELINE
+      // ─────────────────────────────────────────
+      const MIN = 1954, MAX = 1965, RANGE = MAX - MIN;
+      const tlRange = document.getElementById('tl-range');
+      const tlThumb = document.getElementById('tl-thumb');
+      const tlFilled = document.getElementById('tl-filled');
+      const tlThumbYear = document.getElementById('tl-thumb-year');
+      const tlLabels = document.getElementById('tl-labels');
+      const tlBar = document.getElementById('tl-bar');
+
+      // Build labels
+      YEARS.forEach(y => {
+        const label = document.createElement('div');
+        label.className = 'tl-label' + (y === 1954 ? ' active' : '');
+        label.textContent = y;
+        label.addEventListener('click', () => setYear(y));
+        tlLabels.appendChild(label);
+      });
+
+      // Build dots for years with events
+      const evYears = [...new Set(EVENTS.map(e => e.year))];
+      evYears.forEach(y => {
+        const pct = (y - MIN) / RANGE * 100;
+        const dot = document.createElement('div');
+        dot.className = 'tl-dot';
+        dot.style.left = pct + '%';
+        dot.title = `${y}: ${EVENTS.filter(e => e.year === y).length} sự kiện`;
+        dot.addEventListener('click', () => setYear(y));
+        tlBar.appendChild(dot);
+      });
+
+      function setYear(y) {
+        const pct = (y - MIN) / RANGE * 100;
+        tlThumb.style.left = pct + '%';
+        tlFilled.style.width = pct + '%';
+        tlThumbYear.textContent = y;
+        tlRange.value = y;
+        // update labels
+        document.querySelectorAll('.tl-label').forEach((el, i) => {
+          el.classList.toggle('active', YEARS[i] === y);
+        });
+        showEventsForYear(y);
+      }
+
+      tlRange.addEventListener('input', () => {
+        const y = parseInt(tlRange.value);
+        setYear(y);
+      });
+
+      // Init
+      setYear(1954);
+    }); // end DOMContentLoaded
+  </script>
+</body>
+
+</html>
