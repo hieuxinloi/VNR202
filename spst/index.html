@@ -1556,11 +1556,6 @@
               return { fillColor: isNorth ? '#c0392b' : '#d4a017', weight: 0, color: 'transparent', fillOpacity: 0.55 };
             },
             onEachFeature: (f, layer) => {
-              const bounds = layer.getBounds();
-              const isNorth = bounds.getCenter().lat > 17.015;
-              const name = f.properties.Name || f.properties.Ten_Tinh || 'Tỉnh';
-              const region = isNorth ? 'Bắc Việt Nam (VNDCCH)' : 'Nam Việt Nam (VNCH)';
-              layer.bindPopup(`<span class='popup-title'>${name}</span><span class='popup-detail'>Khu vực: <b>${region}</b></span>`);
               layer.on({
                 mouseover: e => { e.target.setStyle({ weight: 2, color: '#444', fillOpacity: 0.8 }); dmz.bringToFront(); },
                 mouseout: e => { e.target.setStyle({ weight: 0, color: 'transparent', fillOpacity: 0.55 }); }
