@@ -83,7 +83,7 @@
       font-size: clamp(16px, 2.2vw, 26px);
       font-weight: 900;
       color: #ffffff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       letter-spacing: 3px;
       text-transform: uppercase;
       line-height: 1.15;
@@ -719,6 +719,7 @@
     </div>
     <div class="header-nav">
       <a href="#" class="nav-btn active">GIÁO DỤC</a>
+      <a href="#" class="nav-btn" onclick="openAiModal(event)">AI MINH BẠCH</a>
       <a href="../game/index.html" class="nav-btn">TRÒ CHƠI ÔN TẬP</a>
     </div>
   </header>
@@ -822,6 +823,67 @@
       </div>
     </div>
   </div>
+
+  <!-- AI MINH BẠCH MODAL -->
+  <div class="modal-overlay" id="ai-modal">
+    <div class="modal-content-wrap">
+      <div class="modal-close" onclick="closeAiModal()">×</div>
+      <div class="modal-inner">
+        <div class="modal-title">AI MINH BẠCH & CAM KẾT HỌC THUẬT</div>
+        
+        <div class="modal-details">
+          <h4>Công cụ công nghệ hỗ trợ</h4>
+          <p>Trong quá trình soạn lại nội dung, nhóm mình đã ứng dụng các công cụ công nghệ hiện đại nhằm tối ưu hóa quy trình nghiên cứu, trình bày và kiểm chứng thông tin:</p>
+          <ul>
+            <li><strong>ChatGPT (OpenAI), Gemini:</strong> hỗ trợ gợi ý bố cục bài giảng, diễn đạt học thuật và tổng hợp nội dung từ các nguồn chính thống.</li>
+            <li><strong>Vercel:</strong> nền tảng triển khai website học thuật, đảm bảo tốc độ tải nhanh và tính ổn định cao.</li>
+            <li><strong>Google Scholar và văn kiện gốc:</strong> công cụ kiểm chứng và trích dẫn thông tin chính xác.</li>
+            <li><strong>Figma:</strong> tham khảo giao diện học tập trực quan và thân thiện với người dùng.</li>
+          </ul>
+
+          <h4>Cam kết học thuật và đạo đức nội dung</h4>
+          <p>Nhóm em xin cam kết:</p>
+          <ul>
+            <li>Không sử dụng nội dung từ nguồn không xác thực hoặc vi phạm bản quyền.</li>
+            <li>AI chỉ đóng vai trò hỗ trợ biên tập, không thay thế tư duy, lập luận và phân tích của người biên soạn.</li>
+            <li>Mọi thông tin đều được đối chiếu, trích dẫn rõ ràng, đảm bảo tính trung thực và minh bạch học thuật.</li>
+          </ul>
+
+          <h4>Quy trình kiểm chứng nội dung</h4>
+          <p>Trước khi công bố, mỗi bài học và phần trình bày đều trải qua quy trình kiểm tra nghiêm ngặt:</p>
+          <ul>
+            <li><strong>Xác thực nguồn gốc:</strong> chỉ sử dụng tư liệu từ giáo trình, nghị quyết và báo cáo kinh tế chính thức.</li>
+            <li><strong>Đối chiếu chéo:</strong> so sánh kết quả do AI hỗ trợ với quan điểm học giả và tài liệu gốc.</li>
+            <li><strong>Đảm bảo trung thực học thuật:</strong> tuân thủ nguyên tắc trích dẫn, không sao chép nguyên văn nội dung được tạo bởi AI.</li>
+          </ul>
+
+          <h4>Sáng tạo và giá trị con người</h4>
+          <p>AI chỉ là công cụ hỗ trợ sáng tạo, còn giá trị cốt lõi đến từ tư duy phản biện và tri thức của con người.</p>
+          <p>Toàn bộ sản phẩm học tập thể hiện sự kết hợp giữa:</p>
+          <ul>
+            <li><strong>Trí tuệ con người:</strong> phân tích, đánh giá và chọn lọc thông tin có giá trị.</li>
+            <li><strong>Trí tuệ nhân tạo:</strong> tối ưu hóa hiệu suất, hỗ trợ sắp xếp và trình bày logic.</li>
+            <li><strong>Tinh thần học thuật độc lập:</strong> duy trì tính khách quan, sáng tạo và nhân văn trong quá trình giảng dạy.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openAiModal(e) {
+      if (e) e.preventDefault();
+      document.getElementById('ai-modal').classList.add('active');
+    }
+    function closeAiModal() {
+      document.getElementById('ai-modal').classList.remove('active');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('ai-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeAiModal();
+      });
+    });
+  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
